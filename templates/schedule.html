@@ -1,0 +1,152 @@
+{% extends "base.html" %}{% block content %}
+{% set names = {2:'Thứ Hai', 3:'Thứ Ba', 4:'Thứ Tư', 5:'Thứ Năm', 6:'Thứ Sáu', 7:'Thứ Bảy'} %}
+{% set courses = items|map(attribute=3)|unique|list %}
+{% set am = items|selectattr(1, 'lt', '12:00')|list %}
+{% set tod = items|selectattr(0, 'equalto', today)|list %}
+<div class="dr">
+
+  <!-- HEADER -->
+  <div class="dr-head">
+    <div class="dr-hl">
+      <div class="dr-crumb">
+        <span>HUST HUB</span><i>/</i><span>HỌC TẬP</span><i>/</i><b>THỜI KHÓA BIỂU &amp; LỊCH HỌC</b>
+      </div>
+      <div class="dr-titlerow">
+        <h1>Thời khóa biểu &amp; Lịch học</h1>
+        <span class="dr-badge">Tuần {{ week_range }}</span>
+      </div>
+      <p class="dr-sub"><span class="sd ok"></span>Học kỳ hiện tại • Đồng bộ từ cổng đào tạo HUST lúc 08:30 hôm nay</p>
+    </div>
+    <div class="dr-acts">
+      <button class="dr-btn"><span class="icon">chevron_left</span>Tuần trước</button>
+      <button class="dr-btn"><span class="icon">today</span>Tuần này</button>
+      <button class="dr-btn">Tuần sau<span class="icon">chevron_right</span></button>
+      <button class="dr-btn pri"><span class="icon">calendar_add_on</span>Xuất lịch .ics</button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="dr-kpis">
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">BUỔI HỌC TRONG TUẦN</span><span class="dr-pill mut">Tuần này</span></div>
+      <div class="dr-big"><b>{{ '%02d' % items|length }}</b><span>buổi</span></div>
+      <div class="dr-cap"><span class="icon i16 t-ok">check_circle</span><span>Không có buổi nào bị trùng lịch</span></div>
+    </div>
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">SỐ HỌC PHẦN</span><span class="dr-pill ok">Đang học</span></div>
+      <div class="dr-big"><b>{{ '%02d' % courses|length }}</b><span>học phần</span></div>
+      <div class="dr-cap"><span class="icon i16 t-pri">menu_book</span><span>Gồm lý thuyết và thực hành</span></div>
+    </div>
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">HÔM NAY</span>
+        {% if tod %}<span class="dr-pill hot">Có lịch học</span>{% else %}<span class="dr-pill mut">Trống lịch</span>{% endif %}</div>
+      <div class="dr-big {{ 'ok' if not tod }}"><b>{{ '%02d' % tod|length }}</b><span>buổi học</span></div>
+      <div class="dr-cap"><span class="icon i16 t-ok">schedule</span><span id="tk-next">{{ 'Xem dòng thời gian bên dưới' if tod else 'Hôm nay bạn không có tiết nào' }}</span></div>
+    </div>
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">SÁNG / CHIỀU</span><span class="dr-pill mut">Phân bổ</span></div>
+      <div class="dr-big"><b>{{ am|length }}<span class="tk-sl"> / </span>{{ items|length - am|length }}</b><span>buổi</span></div>
+      <div class="dr-cap"><span class="icon i16 t-pri">wb_twilight</span><span>Bắt đầu sớm nhất lúc 06:45</span></div>
+    </div>
+  </div>
+
+  <!-- LỊCH TUẦN -->
+  <section class="dr-sec">
+    <div class="dr-sh">
+      <h2><span class="icon t-pri">calendar_month</span>Lịch học theo tuần</h2>
+      <div class="tk-legend">
+        <span><i class="tk-lg am"></i>Sáng</span><span><i class="tk-lg pm"></i>Chiều</span><span><i class="tk-lg lab"></i>Thực hành</span>
+      </div>
+    </div>
+    <div class="tk-week">
+      {% for d in days %}
+      <div class="tk-day {{ 'today' if d == today }}">
+        <div class="tk-dh">
+          <div><b>{{ names[d] }}</b><small class="mono">{{ week[d] }}</small></div>
+          {% if d == today %}<span class="dr-pill solid">Hôm nay</span>{% endif %}
+        </div>
+        {% for s in items if s[0] == d %}
+        <div class="tk-item {{ 'am' if s[1] < '12:00' else 'pm' }} {{ 'lab' if 'Thực hành' in s[3] }}"
+             {% if d == today %}data-start="{{ s[1] }}" data-end="{{ s[2] }}"{% endif %}>
+          <div class="between">
+            <span class="tk-time mono">{{ s[1] }} - {{ s[2] }}</span>
+            <span class="dr-pill mut">{{ 'Sáng' if s[1] < '12:00' else 'Chiều' }}</span>
+          </div>
+          <h3>{{ s[3] }}</h3>
+          <div class="dr-meta">
+            <span><span class="icon i15">tag</span>{{ s[4] }}</span>
+            <span><span class="icon i15">location_on</span>{{ s[5] }}</span>
+          </div>
+        </div>
+        {% else %}
+        <div class="tk-empty"><span class="icon">weekend</span>Không có lịch học</div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- DƯỚI: HÔM NAY + AI -->
+  <div class="dr-grid">
+    <section class="dr-sec">
+      <div class="dr-sh">
+        <h2><span class="icon t-ok">today</span>Dòng thời gian hôm nay</h2>
+        <small>{{ names[today] if today in names else 'Chủ Nhật' }}</small>
+      </div>
+      {% if tod %}
+      <div class="timeline">
+        {% for s in tod %}
+        <div class="tl" data-start="{{ s[1] }}" data-end="{{ s[2] }}">
+          <span class="dot2 d-mut"></span>
+          <div class="time">{{ s[1] }}<small>đến {{ s[2] }}</small></div>
+          <div class="box">
+            <span class="tk-state tag"></span>
+            <h4>{{ s[3] }}</h4>
+            <small>{{ s[4] }} • Phòng {{ s[5] }}</small>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="tk-empty big"><span class="icon">celebration</span>Hôm nay bạn không có tiết học nào. Hãy tranh thủ làm bài tập hoặc đăng ký hoạt động ngoại khóa.</div>
+      {% endif %}
+    </section>
+
+    <section class="dr-sec dr-gap">
+      <div class="dr-sh" style="margin-bottom:0">
+        <h2><span class="logo sm"><span class="icon i16">neurology</span></span>Trợ lý AI Lịch học</h2>
+        <small class="t-ok nw">Real-time Advisor</small>
+      </div>
+      <div class="dr-ai">
+        <p>Chào <b>{{ user.name.split()[-1] }}</b>! Tuần này bạn có <b class="t-ok">{{ items|length }} buổi học</b> ở <b>{{ courses|length }} học phần</b>.</p>
+        <div class="dr-hint mut"><span class="icon i18 t-ok">lightbulb</span>
+          <span>Buổi trống sau tiết chiều là thời điểm phù hợp để tham gia hoạt động ngoại khóa mà không trùng lịch học.</span></div>
+      </div>
+      <a class="ai-prompt" href="{{ url_for('activities') }}"><span class="dr-inl"><span class="icon i16 t-pri">event_available</span>Tìm hoạt động không trùng lịch học</span><span class="icon i16">chevron_right</span></a>
+      <a class="ai-prompt" href="{{ url_for('assignments') }}"><span class="dr-inl"><span class="icon i16">assignment</span>Xem bài tập sắp đến hạn</span><span class="icon i16">chevron_right</span></a>
+    </section>
+  </div>
+</div>{% endblock %}
+
+{% block scripts %}<script>
+(function () {
+  var d = new Date(), now = d.getHours() * 60 + d.getMinutes();
+  function m(t) { var p = t.split(':'); return +p[0] * 60 + +p[1]; }
+  var next = null;
+  document.querySelectorAll('.tl[data-start]').forEach(function (el) {
+    var s = m(el.dataset.start), e = m(el.dataset.end),
+        dot = el.querySelector('.dot2'), st = el.querySelector('.tk-state');
+    if (now >= e) { el.classList.add('done'); st.textContent = 'Đã học xong'; }
+    else if (now >= s) { dot.className = 'dot2 d-red ping'; el.querySelector('.box').classList.add('hotbox');
+      st.textContent = 'Đang diễn ra'; st.classList.add('hot'); }
+    else { dot.className = 'dot2 d-ok'; st.textContent = 'Sắp diễn ra'; st.classList.add('ok');
+      if (next === null) next = el.dataset.start; }
+  });
+  document.querySelectorAll('.tk-item[data-start]').forEach(function (el) {
+    var s = m(el.dataset.start), e = m(el.dataset.end);
+    if (now >= e) el.classList.add('past'); else if (now >= s) el.classList.add('live');
+  });
+  var n = document.getElementById('tk-next');
+  if (n && next) n.textContent = 'Buổi tiếp theo bắt đầu lúc ' + next;
+})();
+</script>{% endblock %}

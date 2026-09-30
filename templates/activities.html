@@ -1,0 +1,296 @@
+{% extends "base.html" %}{% block content %}
+<div class="dr">
+
+  <!-- HEADER -->
+  <div class="dr-head">
+    <div class="dr-hl">
+      <div class="dr-crumb">
+        <span>HUST HUB</span><i>/</i><span>CÔNG TÁC SINH VIÊN</span><i>/</i><b>ĐIỂM RÈN LUYỆN &amp; ICTSV</b>
+      </div>
+      <div class="dr-titlerow">
+        <h1>Điểm rèn luyện &amp; Hoạt động Ngoại khóa</h1>
+        <span class="dr-badge">iCTSV Sync: Active</span>
+      </div>
+      <p class="dr-sub"><span class="sd ok"></span>Học kỳ 2024.1 • Cập nhật tự động từ cổng iCTSV lúc 08:30 hôm nay</p>
+    </div>
+    <div class="dr-acts">
+      <button class="dr-btn" title="Quy chế công tác sinh viên ĐHBK"><span class="icon">gavel</span>Quy chế ĐRL ĐHBK
+        HN</button>
+      <button class="dr-btn" title="Tải hồ sơ minh chứng PDF"><span class="icon">download</span>Xuất minh chứng
+        PDF</button>
+      <button class="dr-btn pri" id="sync-btn"><span class="icon" id="dr-sync-icon">sync</span>Đồng bộ iCTSV
+        ngay</button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="dr-kpis">
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">TỔNG ĐIỂM DỰ KIẾN</span>
+        <span class="dr-pill ok"><span class="sd ok"></span>Xếp loại Tốt</span>
+      </div>
+      <div class="dr-big"><b>88</b><span>/ 100</span></div>
+      <div class="dr-cap"><span class="icon i16 t-pri">trending_up</span>
+        <span>Chỉ còn thiếu <b class="t-pri">2 điểm</b> để đạt mốc <b class="t-tx">Xuất sắc (≥ 90đ)</b></span>
+      </div>
+    </div>
+
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">TIÊU CHÍ CẦN BỔ SUNG</span><span class="dr-pill hot">Đang thiếu</span>
+      </div>
+      <div>
+        <div class="dr-krow"><b class="dr-ellip">Tiêu chí 3: Đ-Đoàn-Hội</b><span class="mono t-pri">13/20đ</span></div>
+        <div class="dr-track"><i class="hot" style="width:65%"></i></div>
+      </div>
+      <div class="dr-cap between"><span>Thiếu 7đ tối đa</span><span class="t-ok">Cần +2đ để chạm 90đ</span></div>
+    </div>
+
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">HOẠT ĐỘNG ĐÃ THAM GIA</span><span class="dr-pill mut">Kỳ 2024.1</span>
+      </div>
+      <div class="dr-big"><b>06</b><span>sự kiện</span></div>
+      <div class="dr-cap"><span class="icon i16 t-ok">check_circle</span><span>100% đã được phê duyệt QR iCTSV</span>
+      </div>
+    </div>
+
+    <div class="dr-kpi">
+      <div class="dr-kh"><span class="dr-kl">SẮP DIỄN RA ĐÃ ĐĂNG KÝ</span><span class="dr-pill ok">Tuần 08</span></div>
+      <div class="dr-big ok"><b>02</b><span>sự kiện tuần này</span></div>
+      <div class="dr-cap"><span class="icon i16 t-ok">add_circle</span>
+        <span>Tiềm năng: <b class="t-ok">+8đ ĐRL</b> (Dự kiến → <b class="t-tx">96đ</b>)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="dr-grid">
+
+    <!-- LEFT -->
+    <div class="dr-col">
+
+      <section class="dr-sec">
+        <div class="dr-sh">
+          <h2><span class="icon t-pri">tune</span>Phân bổ 5 Tiêu chí ĐRL</h2>
+          <small>Quy chế CTSV ĐH Bách Khoa</small>
+        </div>
+        <div class="dr-list">
+
+          <div class="dr-crit">
+            <div class="dr-ct">
+              <div class="dr-cl"><span class="dr-code">TC1</span>
+                <div>
+                  <h3>Ý thức học tập &amp; nghiên cứu khoa học</h3>
+                  <p>Tham gia NCKH Lab ĐHBK, thi Olympic, không vi phạm quy chế thi cử</p>
+                </div>
+              </div>
+              <div class="dr-pts"><b>18</b><span>/ 20đ</span></div>
+            </div>
+            <div class="dr-track"><i style="width:90%"></i></div>
+          </div>
+
+          <div class="dr-crit">
+            <div class="dr-ct">
+              <div class="dr-cl"><span class="dr-code">TC2</span>
+                <div>
+                  <div class="dr-tt">
+                    <h3>Ý thức chấp hành nội quy, quy chế trường</h3><span class="dr-pill ok">Tối đa</span>
+                  </div>
+                  <p>Hoàn thành SHCD đầu năm, bảo hiểm y tế, trật tự giảng đường &amp; KTX</p>
+                </div>
+              </div>
+              <div class="dr-pts ok"><b>25</b><span>/ 25đ</span></div>
+            </div>
+            <div class="dr-track"><i style="width:100%"></i></div>
+          </div>
+
+          <div class="dr-crit alert">
+            <div class="dr-ct">
+              <div class="dr-cl"><span class="dr-code hot">TC3</span>
+                <div>
+                  <div class="dr-tt">
+                    <h3>Hoạt động chính trị - xã hội, văn hóa, thể thao</h3><span class="dr-pill hot">Đang thiếu
+                      điểm</span>
+                  </div>
+                  <p>Hoạt động Đoàn - Hội, chiến dịch tình nguyện, thể thao HUST Games</p>
+                </div>
+              </div>
+              <div class="dr-pts hot"><b>13</b><span>/ 20đ</span></div>
+            </div>
+            <div class="dr-track"><i class="hot" style="width:65%"></i></div>
+            <div class="dr-tip"><span class="icon i15">tips_and_updates</span>
+              <span>Cần thêm 1 workshop hoặc 1 giải đấu thể thao để chạm mốc Xuất sắc (≥90đ tổng).</span>
+            </div>
+          </div>
+
+          <div class="dr-crit">
+            <div class="dr-ct">
+              <div class="dr-cl"><span class="dr-code">TC4</span>
+                <div>
+                  <h3>Phẩm chất công dân &amp; quan hệ cộng đồng</h3>
+                  <p>Hoạt động thiện nguyện, hiến máu nhân đạo, tương trợ cộng đồng SV</p>
+                </div>
+              </div>
+              <div class="dr-pts"><b>22</b><span>/ 25đ</span></div>
+            </div>
+            <div class="dr-track"><i style="width:88%"></i></div>
+          </div>
+
+          <div class="dr-crit">
+            <div class="dr-ct">
+              <div class="dr-cl"><span class="dr-code">TC5</span>
+                <div>
+                  <div class="dr-tt">
+                    <h3>Công tác cán bộ lớp, đoàn thể &amp; Khen thưởng</h3><span class="dr-pill ok">Tối đa</span>
+                  </div>
+                  <p>Thành viên Ban chấp hành Chi đoàn KHMT01, danh hiệu SV tiêu biểu</p>
+                </div>
+              </div>
+              <div class="dr-pts ok"><b>10</b><span>/ 10đ</span></div>
+            </div>
+            <div class="dr-track"><i style="width:100%"></i></div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="dr-sec">
+        <div class="dr-sh">
+          <h2><span class="icon t-mut">history</span>Lịch sử hoạt động đã ghi nhận (Kỳ 2024.1)</h2>
+          <small class="dr-inl">Tổng 04 minh chứng <span class="sd ok" style="margin:0 0 0 8px"></span></small>
+        </div>
+        <div class="dr-scroll">
+          <table class="dr-tbl">
+            <thead>
+              <tr>
+                <th>Hoạt động / Sự kiện</th>
+                <th>Tiêu chí</th>
+                <th class="c">Điểm</th>
+                <th>Trạng thái</th>
+                <th class="r">Ngày ghi nhận</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Ngày hội Sinh viên Sáng tạo &amp; Khởi nghiệp SoICT</b><small>Tòa B1 • Ban tổ chức SoICT
+                    HUST</small></td>
+                <td><span class="dr-tc">TC1: NCKH</span></td>
+                <td class="c pt">+5đ</td>
+                <td><span class="dr-st"><span class="icon i14">qr_code_2</span>Đã duyệt QR</span></td>
+                <td class="r mono t-mut">15/09/2024</td>
+              </tr>
+              <tr>
+                <td><b>Chạy việt dã HUST Run 2024 (Sân C1)</b><small>Đoàn Thanh niên ĐHBK Hà Nội</small></td>
+                <td><span class="dr-tc">TC3: Thể thao</span></td>
+                <td class="c pt">+3đ</td>
+                <td><span class="dr-st"><span class="icon i14">check</span>Đã duyệt</span></td>
+                <td class="r mono t-mut">28/09/2024</td>
+              </tr>
+              <tr>
+                <td><b>Tuần sinh hoạt công dân sinh viên đầu năm</b><small>Hội trường C2 • Phòng CTSV</small></td>
+                <td><span class="dr-tc">TC2: Nội quy</span></td>
+                <td class="c pt">+10đ</td>
+                <td><span class="dr-st"><span class="icon i14">verified</span>Đã duyệt</span></td>
+                <td class="r mono t-mut">05/10/2024</td>
+              </tr>
+              <tr>
+                <td><b>Hiến máu nhân đạo “Giọt hồng Bách Khoa”</b><small>CLB Thanh niên Tình nguyện Vận động Hiến
+                    máu</small></td>
+                <td><span class="dr-tc">TC4: Cộng đồng</span></td>
+                <td class="c pt">+5đ</td>
+                <td><span class="dr-st"><span class="icon i14">verified</span>Đã duyệt</span></td>
+                <td class="r mono t-mut">12/10/2024</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="dr-col">
+
+      <section class="dr-sec dr-gap">
+        <div class="between" style="align-items:flex-start">
+          <div>
+            <h2 style="margin:0"><span class="icon t-ok">psychology</span>Gợi ý hoạt động thông minh</h2>
+            <p class="dr-note">Đã tự động loại trừ trùng lịch học &amp; nhắm đúng <b class="t-pri">Tiêu chí 3</b> đang
+              thiếu.</p>
+          </div>
+          <span class="dr-pill ok mono nw">3 Matching</span>
+        </div>
+
+        <div class="dr-ev best">
+          <div class="between">
+            <span class="dr-pill solid"><span class="icon i14">auto_awesome</span>GỢI Ý TỐT NHẤT</span>
+            <span class="dr-pill ok">+5đ Tiêu chí 3</span>
+          </div>
+          <div>
+            <h3>Workshop: GenAI Architecture in Enterprise Cloud</h3>
+            <p class="t-ok dr-inl"><span class="icon i14">event_available</span>Chiều Thứ Tư, 23/10 (17:30 - 19:30) •
+              Không trùng lịch học!</p>
+          </div>
+          <div class="dr-meta">
+            <span><span class="icon i15">location_on</span>Hội trường C2</span>
+            <span><span class="icon i15">group</span>Còn 42 vé đăng ký</span>
+          </div>
+          <div class="dr-hint"><span class="icon i16 t-ok">check_circle</span>
+            <span>Tham gia sự kiện này sẽ giúp bạn <b>chạm ngay 93đ (Xuất sắc)</b>.</span>
+          </div>
+          <button class="dr-btn pri full"><span class="icon">qr_code</span>Đăng ký nhận vé QR iCTSV</button>
+        </div>
+
+        <div class="dr-ev">
+          <div class="between" style="align-items:flex-start">
+            <small>Thể thao • Đoàn Hội SoICT</small><span class="dr-pill ok">+3đ TC3</span>
+          </div>
+          <div>
+            <h3>Giải bóng đá Cúp Sinh viên SoICT 2024</h3>
+            <p>Thứ Bảy, 26/10 (08:00) • Sân vận động Bách Khoa</p>
+          </div>
+          <div class="between"><small>Mở đăng ký tự do</small><button class="dr-btn sm">Đăng ký tham gia</button></div>
+        </div>
+
+        <div class="dr-ev">
+          <div class="between" style="align-items:flex-start">
+            <small>Hướng nghiệp • Ban CTSV &amp; FPT</small><span class="dr-pill mut">+4đ TC1/TC4</span>
+          </div>
+          <div>
+            <h3>Tọa đàm Hướng nghiệp cùng Doanh nghiệp Nhật Bản</h3>
+            <p>Chủ Nhật, 27/10 (09:00) • Hội trường Thư viện Tạ Quang Bửu</p>
+          </div>
+          <div class="between"><small>500 chỗ ngồi</small><button class="dr-btn sm">Xem chi tiết</button></div>
+        </div>
+      </section>
+
+      <section class="dr-sec dr-gap">
+        <div class="dr-sh" style="margin-bottom:0">
+          <h2><span class="logo sm"><span class="icon i16">neurology</span></span>Trợ lý AI Phân tích &amp; Tư vấn ĐRL
+          </h2>
+          <small class="t-ok nw">Real-time Advisor</small>
+        </div>
+        <div class="dr-ai">
+          <p>Chào <b>Văn A</b>! Nếu bạn tham gia <b>Workshop GenAI tại C2</b> vào chiều mai, điểm rèn luyện của bạn sẽ
+            đạt <b class="t-ok">93/100 (Xếp loại Xuất sắc)</b>.</p>
+          <div class="dr-hint mut"><span class="icon i18 t-ok">workspace_premium</span>
+            <span>Điều này giúp bạn đủ điều kiện nộp hồ sơ xét <b>Học bổng Khuyến khích Tài năng Viettel Digital
+                2024</b> (yêu cầu ĐRL ≥ 90đ + CPA ≥ 3.2).</span>
+          </div>
+        </div>
+        <button class="ai-prompt"><span class="dr-inl"><span class="icon i16 t-pri">verified</span>Kiểm tra điều kiện
+            học bổng liên quan</span><span class="icon i16">chevron_right</span></button>
+        <button class="ai-prompt"><span class="dr-inl"><span class="icon i16">contact_support</span>Gửi thắc mắc điểm
+            phúc khảo iCTSV</span><span class="icon i16">chevron_right</span></button>
+      </section>
+
+    </div>
+  </div>
+</div>{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('sync-btn').addEventListener('click', function () {
+    var i = document.getElementById('dr-sync-icon'), b = this;
+    i.classList.add('rot'); b.classList.add('busy');
+    setTimeout(function () { i.classList.remove('rot'); b.classList.remove('busy'); }, 800);
+  });
+</script>{% endblock %}

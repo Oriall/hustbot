@@ -1,0 +1,54 @@
+{% extends "base.html" %}{% set tasks_json = tasks %}{% block title %}Bài tập & Bài thi - HUSTBot{% endblock %}
+{% block content %}
+{% set groups = [('urgent','Khẩn cấp & Sắp đến hạn (dưới 24 giờ)','p'),('week','Tuần này (1 - 3 ngày tới)','s'),('later','Sắp tới & Bài tập lớn','m')] %}
+<div class="head2">
+  <div>
+    <div class="crumb">HUST Hub / Học tập / <span>Bài tập & Bài thi</span></div>
+    <div class="tags"><h1>Quản lý Bài tập & Bài thi</h1><span class="pill">{{ tasks|length }} nhiệm vụ đang theo dõi</span></div>
+  </div>
+  <div class="tags">
+    <button class="btn"><span class="icon ok">sync</span>Đồng bộ LMS & Teams</button>
+    <button class="btn"><span class="icon">calendar_add_on</span>Xuất iCal / Outlook</button>
+  </div>
+</div>
+
+<div class="filter">
+  <div class="tabs" id="tabs">
+    <button class="on" data-src="all">Tất cả nền tảng <i>{{ tasks|length }}</i></button>
+    {% for k, v in sources.items() %}<button data-src="{{ k }}"><i class="sd s-{{ k }}"></i>{{ v }} <i>{{ tasks|selectattr('source','eq',k)|list|length }}</i></button>{% endfor %}
+  </div>
+  <div class="search sm"><span class="icon">filter_list</span><input id="kw" placeholder="Lọc theo mã môn: PH1110, MI..."></div>
+</div>
+
+<div class="between subbar">
+  <div class="seg" id="status"><small>Trạng thái:</small>
+    <button class="on" data-st="all">Tất cả ({{ tasks|length }})</button>
+    <button data-st="soon" class="warnbtn">Sắp đến hạn dưới 24h ({{ tasks|selectattr('group','eq','urgent')|list|length }})</button>
+  </div>
+  <div class="seg"><small>Sắp xếp:</small>
+    <select id="sort"><option value="due">Hạn chót gần nhất</option><option value="weight">Trọng số cao nhất</option><option value="code">Theo mã môn</option></select>
+  </div>
+</div>
+
+<div class="split">
+  <div id="list">
+    {% for key, title, tone in groups %}{% set items = tasks|selectattr('group','eq',key)|list %}{% if items %}
+    <div class="grp">
+      <div class="between gh"><span class="gt {{ tone }}"><i class="sd"></i>{{ title }}</span><small>{{ items|length }} nhiệm vụ</small></div>
+      {% for t in items %}
+      <div class="card" data-id="{{ t.id }}">
+        <div class="between top"><div class="tags">
+            <span class="pill {{ '' if loop.first and key == 'urgent' else 'mute' }}">{{ t.kind }}</span>
+            <span class="tag s-{{ t.source }}"><i class="sd"></i>{{ t.source_name }}</span>
+            {% if t.weight %}<span class="tag">Trọng số {{ t.weight }}%</span>{% endif %}</div>
+          <span class="tag {{ t.level }}">{{ t.label }}</span></div>
+        <b>{{ t.title }}</b>
+        <small><b class="code">{{ t.code }}</b> - {{ t.course }} - {{ t.extra }}</small>
+        <div class="between foot"><small><span class="icon sm">schedule</span> {{ t.due }}</small><small>{{ t.note }}</small></div>
+      </div>{% endfor %}
+    </div>{% endif %}{% endfor %}
+    <button class="archive"><span><span class="icon ok">check_circle</span> Đã hoàn thành & Đã chấm điểm</span><small>{{ done }} bài đã lưu</small></button>
+  </div>
+  <section id="detail" class="panel"></section>
+</div>
+{% endblock %}

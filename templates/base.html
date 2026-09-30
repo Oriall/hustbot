@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}HUSTBot{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% set nav = [('overview','grid_view','Tổng quan'),('assignments','assignment','Bài tập & Bài thi'),('assistant','neurology','Trợ lý AI Bách Khoa'),('activities','verified','Điểm rèn luyện & Hoạt động'),('schedule','calendar_month','Thời khóa biểu')] %}
+<aside class="side">
+  <div>
+    <div class="brand"><span class="logo icon">school</span><div><b>HUST<span class="acc">Bot</span></b><small>Engineering Hub</small></div></div>
+    <nav>{% for ep, ic, lb in nav %}<a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint == ep }}"><span class="icon">{{ ic }}</span>{{ lb }}</a>{% endfor %}</nav>
+  </div>
+  <div class="sync"><span class="dot"></span>Đồng bộ LMS, Teams, FAMI, MoocAI</div>
+</aside>
+<div class="wrap">
+  <header class="top">
+    <div class="search"><span class="icon">search</span><input placeholder="Tìm môn học, deadline, quy chế..."></div>
+    <div class="me">
+      <button class="btn" id="btn-notify"><span class="icon">notifications</span>Bật thông báo</button>
+      <div class="txt"><b>{{ user.name }}</b><small>{{ user.mssv }} - {{ user.cls }} - CPA {{ user.cpa }}</small></div>
+      <span class="avatar icon">person</span>
+    </div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+</div>
+<script>window.TASKS = {{ (tasks_json or []) | tojson }};</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

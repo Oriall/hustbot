@@ -1,0 +1,432 @@
+{% extends "base.html" %}{% block content %}
+<div class="as">
+
+  <!-- STATUS BAR -->
+  <div class="as-bar">
+    <div class="as-bl">
+      <span class="as-live"><span class="sd ok pulse"></span>Trợ lý AI Bách Khoa</span>
+      <span class="dr-pill ok">RAG Hybrid Sync: Online</span>
+      <span class="as-hide t-mut as-inl"><span class="icon i16 t-ok">database</span>Vector Store: 18,420 chunks (Quy chế
+        HUST 2024 &amp; Khảo thí)</span>
+    </div>
+    <div class="as-bl">
+      <span class="as-inl mono t-mut"><span class="icon i18 t-pri">psychology</span>Model: <b
+          class="t-tx">HUST-Copilot-v2.4-DeepSeek-8B</b></span>
+      <span class="as-vr"></span>
+      <button class="as-link"><span class="icon i16">tune</span>Tham số</button>
+    </div>
+  </div>
+
+  <div class="as-grid">
+
+    <!-- CỘT 1 -->
+    <div class="as-side">
+      <button class="dr-btn pri as-new" id="as-new"><span class="icon">add</span>Cuộc trò chuyện
+        mới<kbd>Ctrl+N</kbd></button>
+
+      <div class="as-scroll">
+        <div class="as-blk">
+          <div class="as-lh"><span>Lịch sử hội thoại</span><i>4 gần đây</i></div>
+          <div class="as-hist on">
+            <div class="between"><span class="as-tg t-pri"><span class="icon i14">calculate</span>Học phần
+                MI1121</span><small>Vừa xong</small></div>
+            <b>Tính điểm thi cuối kỳ Giải tích 2 để đạt điểm A</b>
+            <small class="clamp">Công thức: 0.3*GK + 0.2*BT + 0.5*CK</small>
+          </div>
+          <div class="as-hist">
+            <div class="between"><span class="as-tg t-ok"><span class="icon i14">history_edu</span>Khảo
+                thí</span><small>10:45</small></div>
+            <b>Lưu ý phòng thi trắc nghiệm Vật lý đại cương 1</b>
+            <small class="clamp">Checklist MS Teams &amp; Máy tính bỏ túi</small>
+          </div>
+          <div class="as-hist">
+            <div class="between"><span class="as-tg"><span class="icon i14">workspace_premium</span>Học bổng Doanh
+                nghiệp</span><small>Hôm qua</small></div>
+            <b>Hướng dẫn đăng ký xét học bổng Viettel 2024</b>
+            <small class="clamp">Tiêu chuẩn CPA ≥ 3.2, ĐRL ≥ 80</small>
+          </div>
+          <div class="as-hist">
+            <div class="between"><span class="as-tg"><span class="icon i14">account_balance</span>Phòng Đào
+                tạo</span><small>03/10</small></div>
+            <b>Thủ tục miễn giảm học phí diện chính sách</b>
+            <small class="clamp">Mẫu 02/HUST nộp tại C1-102</small>
+          </div>
+        </div>
+
+        <div class="as-blk">
+          <div class="as-lh"><span>Tri thức nạp sẵn (Fine-tuned)</span></div>
+          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-pri">menu_book</span>Quy chế Đào tạo
+              tín chỉ 2024</span><small>V.2.1</small></a>
+          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-ok">folder_zip</span>Cẩm nang môn &amp;
+              Đề thi mẫu</span><small>2.4k files</small></a>
+          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-pri">verified</span>Tiêu chí ĐRL &amp;
+              iCTSV HUST</span><small>5 Mục</small></a>
+          <a class="as-kb" href="#"><span class="icon-wrap as-inl"><span class="icon i18 t-mut">map</span>Bản đồ Giảng
+              đường D, B, C1</span><small>Interactive</small></a>
+          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-mut">contact_support</span>Thủ tục hành
+              chính một cửa</span><small>Quy trình</small></a>
+        </div>
+
+        <div class="as-card as-conn">
+          <div class="between"><b>QLĐT Connector</b><small class="t-ok">Đã xác thực</small></div>
+          <small>Dữ liệu kết quả học tập &amp; thời khóa biểu đồng bộ lần cuối lúc 08:30 hôm nay.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- CỘT 2: CHAT -->
+    <div class="as-chat">
+      <div class="as-ch">
+        <div class="as-inl">
+          <span class="as-ic"><span class="icon t-pri">neurology</span></span>
+          <div>
+            <div class="as-inl"><b>HUSTBot Copilot</b><span class="dr-pill solid">v2.4 Pro</span></div>
+            <small class="t-mut as-blk1">Ngữ cảnh: {{ user.name }} ({{ user.mssv }}) • {{ user.cls }} • Kỳ
+              2024.1</small>
+          </div>
+        </div>
+        <div class="as-inl">
+          <button class="ibtn" title="Làm mới ngữ cảnh"><span class="icon i18">restart_alt</span></button>
+          <button class="ibtn" title="Chia sẻ đoạn trích quy chế"><span class="icon i18">share</span></button>
+          <button class="ibtn" title="Cài đặt nhiệt độ model"><span class="icon i18">more_vert</span></button>
+        </div>
+      </div>
+
+      <div class="as-stream" id="as-stream">
+
+        <!-- User 1 (demo) -->
+        <div class="as-turn u">
+          <div class="as-bub u">
+            <p>Môn <b class="t-pri">Giải tích 2 (MI1121)</b> của mình hiện tại điểm QT đang là <b class="ul">7.5</b> (hệ
+              số 0.3), bài tập tuần <b class="ul">8.5</b> (hệ số 0.2). Mình cần đạt bao nhiêu điểm Cuối kỳ để được điểm
+              <b class="t-ok">A</b> hoặc <b class="t-ok">A+</b>?</p>
+            <div class="as-ts"><small>09:14 AM</small><span class="icon i14 t-ok">done_all</span></div>
+          </div>
+          <span class="as-av">A</span>
+        </div>
+
+        <!-- Bot 1 (demo) -->
+        <div class="as-turn">
+          <span class="as-bot"><span class="icon">school</span></span>
+          <div class="as-bub b">
+            <div class="as-cite">
+              <span class="as-inl t-pri"><span class="icon i16">menu_book</span>Căn cứ Quy chế Đào tạo tín chỉ HUST 2024
+                (Điều 23 - Thang điểm 4 &amp; Chữ)</span>
+              <small>Độ tin cậy: 99.8%</small>
+            </div>
+            <p>Chào bạn <b>{{ user.name }}</b>! Với đề cương chi tiết học phần <b>Giải tích 2 (MI1121)</b>, công thức
+              tính điểm tổng kết học phần (Hệ 10) quy định như sau:</p>
+            <div class="as-formula">
+              <div class="t-ok as-inl"><span class="icon i16">functions</span><b>Điểm HP = (0.3 × Điểm QT) + (0.2 × Điểm
+                  BT) + (0.5 × Điểm CK)</b></div>
+              <small>Thay số: Điểm HP = (0.3 × 7.5) + (0.2 × 8.5) + (0.5 × CK) = 2.25 + 1.70 + 0.5 × CK = <b
+                  class="t-tx">3.95 + 0.5 × CK</b></small>
+            </div>
+            <div class="as-scx">
+              <table class="as-tbl">
+                <thead>
+                  <tr>
+                    <th>Mục tiêu</th>
+                    <th>Thang chữ HUST</th>
+                    <th>Yêu cầu HP (Hệ 10)</th>
+                    <th>Điểm CK cần</th>
+                    <th>Độ khả thi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="t-ok"><b>Điểm A</b></td>
+                    <td class="mono">A (4.0 - Xuất sắc)</td>
+                    <td class="mono">≥ 8.5</td>
+                    <td class="mono t-pri"><b>≥ 9.1 (Làm tròn: 9.0 - 9.1)</b></td>
+                    <td><span class="dr-pill ok">Khả thi cao</span></td>
+                  </tr>
+                  <tr>
+                    <td class="t-pri"><b>Điểm A+</b></td>
+                    <td class="mono">A+ (4.0 - Tối đa)</td>
+                    <td class="mono">≥ 9.0</td>
+                    <td class="mono t-pri"><b>≥ 10.0 (Tuyệt đối)</b></td>
+                    <td><span class="dr-pill hot">Thử thách lớn</span></td>
+                  </tr>
+                  <tr>
+                    <td><b>Điểm B+</b></td>
+                    <td class="mono">B+ (3.5 - Giỏi)</td>
+                    <td class="mono">≥ 8.0</td>
+                    <td class="mono"><b>≥ 8.1</b></td>
+                    <td><span class="dr-pill mut">Rất an toàn</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="as-adv">
+              <b class="as-inl"><span class="icon i18 t-ok">lightbulb</span>Chiến lược trọng tâm ôn thi để bứt phá lên A
+                (≥ 9.1 điểm):</b>
+              <ul>
+                <li><b>Tích phân bội 3:</b> Chuyển sang tọa độ trụ &amp; cầu (thường chiếm 2.5 - 3.0 điểm).</li>
+                <li><b>Tích phân mặt loại 2 &amp; Công thức Gauss-Ostrogradsky:</b> Nắm chắc kỹ thuật chọn pháp vector
+                  hướng ra ngoài.</li>
+                <li><b>Phương trình vi phân cấp 2:</b> Phương pháp hệ số bất định và biến thiên hằng số Lagrange.</li>
+              </ul>
+              <button class="dr-btn sm"><span class="icon t-pri">download</span>Tải Bộ đề thi GT2 K63-K65 có lời giải
+                (PDF)</button>
+            </div>
+            <div class="as-fb">
+              <span><button class="ibtn"><span class="icon i16">thumb_up</span></button><button class="ibtn"><span
+                    class="icon i16">thumb_down</span></button><button class="ibtn"><span
+                    class="icon i16">content_copy</span></button></span>
+              <small>09:14 AM • 1,240 tokens</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- User 2 (demo) -->
+        <div class="as-turn u">
+          <div class="as-bub u">
+            <p>Chiều nay mình có thi giữa kỳ <b class="t-pri">Vật lý đại cương 1 (PH1110)</b> trên MS Teams lúc 14:00,
+              bot tóm tắt nhanh quy chế phòng thi và lưu ý quan trọng giúp mình với!</p>
+            <div class="as-ts"><small>10:45 AM</small><span class="icon i14 t-ok">done_all</span></div>
+          </div>
+          <span class="as-av">A</span>
+        </div>
+
+        <!-- Bot 2 (demo) -->
+        <div class="as-turn">
+          <span class="as-bot"><span class="icon">school</span></span>
+          <div class="as-bub b">
+            <div class="as-cite">
+              <span class="as-inl t-ok"><span class="icon i16">emergency</span>Thông báo Khảo thí Viện Vật lý kỹ thuật •
+                Kỳ 2024.1</span>
+              <small class="t-pri"><b>Bắt đầu sau 3h 15m</b></small>
+            </div>
+            <p>Dưới đây là <b>Checklist sinh tử</b> cho ca thi trắc nghiệm trực tuyến PH1110 chiều nay:</p>
+            <div class="as-chk">
+              <div><span class="icon t-ok">videocam</span>
+                <div><b>Webcam &amp; Góc quay</b><small>Bật camera 100% thời gian. Góc quay thấy rõ mặt, 2 tay và mặt
+                    bàn thi.</small></div>
+              </div>
+              <div><span class="icon t-pri">badge</span>
+                <div><b>Đặt tên MS Teams</b><small>Đổi format: <b class="t-tx">{{ user.mssv }} - {{ user.name }}</b>.
+                    Chuẩn bị Thẻ SV / CCCD đối chiếu.</small></div>
+              </div>
+              <div><span class="icon t-ok">calculate</span>
+                <div><b>Máy tính bỏ túi</b><small>Được phép: Casio fx-580VNX, 570VN Plus, Vinacal. Không có chức năng
+                    lưu văn bản/Wifi.</small></div>
+              </div>
+              <div><span class="icon t-pri">schedule</span>
+                <div><b>Thời gian có mặt</b><small>Vào kênh MS Teams trước <b class="t-tx">13:50</b> (10 phút trước giờ
+                    phát đề). Muộn quá 5 phút bị hủy tư cách.</small></div>
+              </div>
+            </div>
+            <div class="as-adv row">
+              <span class="as-inl"><span class="icon t-ok">bolt</span><span>Đã sẵn sàng: <b>Tóm tắt 1 trang công thức Cơ
+                    - Nhiệt PH1110</b></span></span>
+              <button class="dr-btn sm as-see">Xem ngay</button>
+            </div>
+            <div class="as-fb">
+              <span><button class="ibtn"><span class="icon i16">thumb_up</span></button><button class="ibtn"><span
+                    class="icon i16">thumb_down</span></button><button class="ibtn"><span
+                    class="icon i16">content_copy</span></button></span>
+              <small>10:45 AM • 890 tokens</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="as-pills">
+        <small class="as-inl"><span class="icon i14">auto_awesome</span>Gợi ý:</small>
+        <button class="chip">Quy chế bảo lưu môn học</button>
+        <button class="chip">Tính điểm rèn luyện tiêu chí 3</button>
+        <button class="chip">Học bổng KKHT xét theo tiêu chí nào?</button>
+        <button class="chip">Điều kiện miễn Tiếng Anh bằng TOEIC</button>
+      </div>
+
+      <div class="as-inp">
+        <div class="as-box">
+          <textarea id="as-q" rows="2"
+            placeholder="Hỏi HUSTBot về điểm học phần, quy chế khảo thí, bài tập lập trình hoặc tra cứu tài liệu..."></textarea>
+          <div class="between">
+            <div class="as-inl">
+              <button class="ibtn" title="Đính kèm file đề thi PDF / Ảnh bài tập"><span
+                  class="icon i18">attach_file</span></button>
+              <button class="ibtn" title="Chụp ảnh đề thi hoặc biểu đồ"><span
+                  class="icon i18">photo_camera</span></button>
+              <button class="ibtn t-ok as-inl" title="Chế độ phân tích chuyên sâu"><span
+                  class="icon i18">psychology_alt</span><span class="mono">CoT Reasoning</span></button>
+            </div>
+            <div class="as-inl">
+              <small class="as-hide">Enter để gửi • Shift+Enter xuống dòng</small>
+              <button class="as-send" id="as-send" title="Gửi"><span class="icon">send</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CỘT 3 -->
+    <div class="as-side r">
+      <div class="as-card">
+        <div class="as-ph"><span class="as-inl"><span class="icon i16 t-pri">person_pin</span>Hồ sơ học vụ thời gian
+            thực</span><span class="sd ok"></span></div>
+        <div class="as-inl" style="gap:12px">
+          <span class="as-cls">{{ user.cls[1:3] }}</span>
+          <div><b class="as-blk1">{{ user.name }}</b><small>MSSV: {{ user.mssv }} • Viện CNTT&amp;TT</small></div>
+        </div>
+        <div class="as-two">
+          <div class="as-mini"><small>CPA Tích lũy</small><b class="t-ok">{{ user.cpa }}<small>/4.0</small></b><small
+              class="t-ok mono">Xuất sắc</small></div>
+          <div class="as-mini"><small>Điểm rèn luyện</small><b class="t-pri">{{ user.drl }}<small>/100</small></b><small
+              class="t-pri mono">Tốt (Loại A)</small></div>
+        </div>
+        <div class="as-mini row"><small>Tín chỉ học kỳ này</small><b class="as-s">19 TC (7 môn)</b></div>
+      </div>
+
+      <div class="as-card">
+        <div class="as-ph"><span class="as-inl"><span class="icon i16 t-ok">fact_check</span>Căn cứ tri thức trích dẫn
+            (RAG)</span><small>3 nguồn</small></div>
+        <div class="as-mini">
+          <div class="between"><b class="t-pri as-s mono">Sổ tay Sinh viên HUST 2024</b><small>Điều 23.3</small></div>
+          <small>Quy định quy đổi điểm số học phần từ thang điểm 10 sang thang điểm 4 và chữ A, B+, B, C+, C, D+, D,
+            F.</small>
+        </div>
+        <div class="as-mini">
+          <div class="between"><b class="t-ok as-s mono">Quy định Khảo thí &amp; ĐBCL</b><small>Mục 4.2</small></div>
+          <small>Danh mục thiết bị và thiết bị tính toán điện tử cá nhân được chấp thuận trong kỳ thi trắc nghiệm khách
+            quan.</small>
+        </div>
+        <div class="as-mini">
+          <div class="between"><b class="as-s mono">Syllabus PH1110 - Viện VLKT</b><small>Kỳ 2024.1</small></div>
+          <small>Cấu trúc điểm thi giữa kỳ chiếm 30% tổng điểm học phần, gồm 20 câu hỏi trắc nghiệm trong 45
+            phút.</small>
+        </div>
+      </div>
+
+      <div class="as-card grow1">
+        <div class="as-ph"><span class="as-inl"><span class="icon i16 t-mut">local_library</span>Tài liệu học tập đề
+            xuất</span></div>
+        <div class="as-doc"><span class="as-inl"><span class="icon t-pri">picture_as_pdf</span><span><b>Sổ tay công thức
+                Vật lý 1</b><small>PDF • 14 trang • Viện VLKT</small></span></span><span
+            class="icon i16 t-mut">open_in_new</span></div>
+        <div class="as-doc"><span class="as-inl"><span class="icon t-ok">quiz</span><span><b>500 câu trắc nghiệm
+                KTLT</b><small>Interactive Quiz • IT3011</small></span></span><span
+            class="icon i16 t-mut">open_in_new</span></div>
+        <div class="as-doc"><span class="as-inl"><span class="icon t-mut">description</span><span><b>Mẫu đơn xin phúc
+                khảo thi</b><small>DOCX • Phòng Đào tạo HUST</small></span></span><span
+            class="icon i16 t-mut">open_in_new</span></div>
+        <div class="as-tele mono"><span class="as-inl"><span class="sd ok" style="margin:0"></span>Latency:
+            0.38s</span><span>Precision: 99.2%</span><span class="t-ok">SSL Encrypted</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var stream = document.getElementById('as-stream'),
+      q = document.getElementById('as-q'),
+      send = document.getElementById('as-send'),
+      history = [],      // [{role:'user'|'model', text:'...'}]
+      busy = false;
+
+    function time() { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+    function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; return e; }
+    function down() { stream.scrollTop = stream.scrollHeight; }
+
+    // Markdown nhẹ: escape HTML trước rồi mới thêm thẻ => an toàn XSS
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function inline(s) {
+      return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+    function md(text) {
+      var out = [], list = null, lines = text.split('\n');
+      function close() { if (list) { out.push('</' + list + '>'); list = null; } }
+      lines.forEach(function (ln) {
+        var ul = ln.match(/^\s*[-*•]\s+(.*)/), ol = ln.match(/^\s*\d+[.)]\s+(.*)/);
+        if (ul || ol) {
+          var t = ul ? 'ul' : 'ol';
+          if (list !== t) { close(); out.push('<' + t + '>'); list = t; }
+          out.push('<li>' + inline((ul || ol)[1]) + '</li>');
+        } else if (ln.trim() === '') { close(); }
+        else { close(); out.push('<p>' + inline(ln) + '</p>'); }
+      });
+      close();
+      return out.join('');
+    }
+
+    function userMsg(text) {
+      var t = el('div', 'as-turn u'), b = el('div', 'as-bub u'), p = el('p', '', text), ts = el('div', 'as-ts');
+      ts.appendChild(el('small', '', time()));
+      ts.appendChild(el('span', 'icon i14 t-ok', 'done_all'));
+      b.appendChild(p); b.appendChild(ts);
+      t.appendChild(b); t.appendChild(el('span', 'as-av', 'A'));
+      stream.appendChild(t); down();
+    }
+
+    function botMsg(text, src, typing) {
+      var t = el('div', 'as-turn'), bot = el('span', 'as-bot'), b = el('div', 'as-bub b');
+      bot.appendChild(el('span', 'icon', 'school'));
+      if (src) {
+        var c = el('div', 'as-cite'), s = el('span', 'as-inl t-pri');
+        s.appendChild(el('span', 'icon i16', 'menu_book')); s.appendChild(document.createTextNode(src));
+        c.appendChild(s); b.appendChild(c);
+      }
+      if (typing) {
+        var d = el('div', 'as-typing'); d.innerHTML = '<i></i><i></i><i></i>'; b.appendChild(d);
+      } else {
+        var body = el('div', 'as-md'); body.innerHTML = md(text); b.appendChild(body);
+        var fb = el('div', 'as-fb'), acts = el('span');
+        var cp = el('button', 'ibtn'); cp.title = 'Sao chép';
+        cp.appendChild(el('span', 'icon i16', 'content_copy'));
+        cp.addEventListener('click', function () { navigator.clipboard && navigator.clipboard.writeText(text); });
+        acts.appendChild(cp); fb.appendChild(acts); fb.appendChild(el('small', '', time()));
+        b.appendChild(fb);
+      }
+      t.appendChild(bot); t.appendChild(b);
+      stream.appendChild(t); down(); return t;
+    }
+
+    function setBusy(v) { busy = v; send.disabled = v; send.style.opacity = v ? .5 : 1; }
+
+    function ask(text) {
+      var v = (text || q.value).trim();
+      if (!v || busy) return;
+      q.value = ''; userMsg(v); setBusy(true);
+      var wait = botMsg('', '', true);
+
+      fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: v, history: history })
+      })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (res) {
+          wait.remove();
+          botMsg(res.d.ans, res.d.src ? 'Nguồn: ' + res.d.src : '');
+          if (res.ok) {
+            history.push({ role: 'user', text: v }, { role: 'model', text: res.d.ans });
+            if (history.length > 24) history = history.slice(-24);
+          }
+        })
+        .catch(function () { wait.remove(); botMsg('Không kết nối được máy chủ. Bạn thử lại sau nhé.', ''); })
+        .finally(function () { setBusy(false); q.focus(); });
+    }
+
+    function reset() {
+      stream.querySelectorAll('.as-turn').forEach(function (t) { t.remove(); });
+      history = [];
+      botMsg('Xin chào! Mình là HUSTBot. Bạn muốn hỏi về điểm học phần, quy chế, lịch thi hay học bổng?', '');
+    }
+
+    send.addEventListener('click', function () { ask(); });
+    q.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
+    document.querySelectorAll('.as-pills .chip').forEach(function (c) {
+      c.addEventListener('click', function () { ask(c.textContent); });
+    });
+    document.getElementById('as-new').addEventListener('click', reset);
+    document.addEventListener('keydown', function (e) {
+      if (e.ctrlKey && e.key.toLowerCase() === 'n') { e.preventDefault(); reset(); }
+    });
+    down();
+  })();
+</script>{% endblock %}
