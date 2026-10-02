@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HUSTBot - Đăng nhập</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #10141a;
+            --surface: #181c22;
+            --surface-hi: #262a31;
+            --surface-hst: #31353c;
+            --surface-lo: #0a0e14;
+            --text: #dfe2eb;
+            --muted: #c2c7d0;
+            --outline: #5c403d;
+            --outline-soft: rgba(92, 64, 61, .45);
+            --primary: #ffb4ab;
+            --primary-c: #ba141a;
+            --primary-c-hover: #ce1126;
+            --on-primary: #fff;
+            --ok: #4edea3;
+            --err: #ffb4ab;
+            --err-bg: rgba(147, 0, 10, .35);
+            --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+            --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: var(--bg);
+            color: var(--text);
+            font: 14px/20px var(--sans);
+            background-size: 32px 32px;
+            background-image: linear-gradient(to right, rgba(92, 64, 61, .08) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(92, 64, 61, .08) 1px, transparent 1px);
+        }
+
+        ::selection {
+            background: var(--primary-c);
+            color: #ffcbc5
+        }
+
+        .icon {
+            font-family: "Material Symbols Outlined";
+            font-weight: 400;
+            font-style: normal;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            font-feature-settings: "liga";
+            -webkit-font-feature-settings: "liga";
+            font-size: 20px;
+            vertical-align: middle
+        }
+
+        .icon.fill {
+            font-variation-settings: "FILL" 1
+        }
+
+        .mono {
+            font-family: var(--mono)
+        }
+
+        /* ---------- header / footer ---------- */
+        .topbar {
+            background: rgba(10, 14, 20, .8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--outline-soft)
+        }
+
+        .topbar-in {
+            height: 64px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--primary-c);
+            display: grid;
+            place-items: center;
+            box-shadow: 0 0 16px rgba(186, 20, 26, .35);
+            color: #ffdad6
+        }
+
+        .brand-name {
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 22px;
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        .tag {
+            font: 500 11px/14px var(--mono);
+            color: var(--primary);
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: rgba(186, 20, 26, .2);
+            border: 1px solid rgba(186, 20, 26, .4)
+        }
+
+        .brand-sub {
+            font: 500 11px/14px var(--mono);
+            color: var(--muted)
+        }
+
+        .pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 14px;
+            border-radius: 999px;
+            background: var(--surface-hi);
+            border: 1px solid rgba(92, 64, 61, .3);
+            font: 500 11px/14px var(--mono);
+            color: #6ffbbe
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ok);
+            animation: pulse 2s infinite
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: .4
+            }
+        }
+
+        .footer {
+            background: rgba(10, 14, 20, .9);
+            border-top: 1px solid rgba(92, 64, 61, .3);
+            padding: 14px 32px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 24px;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .footer a {
+            color: var(--muted);
+            text-decoration: none
+        }
+
+        .footer a:hover {
+            color: var(--primary)
+        }
+
+        /* ---------- layout ---------- */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 5fr 7fr;
+            gap: 32px;
+            align-items: stretch
+        }
+
+        @media(max-width:960px) {
+            .wrap {
+                grid-template-columns: 1fr
+            }
+
+            .pill {
+                display: none
+            }
+
+            .topbar-in,
+            .footer {
+                padding-left: 20px;
+                padding-right: 20px
+            }
+        }
+
+        /* ---------- left ---------- */
+        .left {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 20px
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 999px;
+            background: rgba(186, 20, 26, .2);
+            border: 1px solid rgba(186, 20, 26, .4);
+            font: 700 11px/14px var(--mono);
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: .06em
+        }
+
+        .badge .icon {
+            font-size: 15px
+        }
+
+        h1 {
+            font-size: 32px;
+            line-height: 40px;
+            letter-spacing: -.02em;
+            font-weight: 700;
+            margin: 12px 0 8px
+        }
+
+        .lead {
+            font-size: 15px;
+            line-height: 24px;
+            color: var(--muted);
+            margin: 0
+        }
+
+        .features {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px
+        }
+
+        .feat {
+            display: flex;
+            gap: 14px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(28, 32, 38, .7);
+            border: 1px solid rgba(92, 64, 61, .3);
+            transition: .2s
+        }
+
+        .feat:hover {
+            border-color: rgba(186, 20, 26, .6);
+            background: rgba(38, 42, 49, .8)
+        }
+
+        .feat-ico {
+            width: 40px;
+            height: 40px;
+            flex: none;
+            border-radius: 8px;
+            background: var(--surface-hst);
+            border: 1px solid rgba(92, 64, 61, .4);
+            display: grid;
+            place-items: center;
+            color: var(--primary)
+        }
+
+        .feat-ico.green {
+            color: var(--ok)
+        }
+
+        .feat-ico.grey {
+            color: #e5bdb9
+        }
+
+        .feat h3 {
+            margin: 0 0 2px;
+            font-size: 16px;
+            line-height: 24px;
+            font-weight: 600
+        }
+
+        .feat p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 18px;
+            color: var(--muted)
+        }
+
+        .status {
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(10, 14, 20, .9);
+            border: 1px solid var(--outline-soft);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .3)
+        }
+
+        .status-head {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(92, 64, 61, .2);
+            font: 600 11px/14px var(--mono);
+            letter-spacing: .04em
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .status-item b {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            font-size: 13px
+        }
+
+        .status-item i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--ok);
+            display: inline-block
+        }
+
+        .status-item span {
+            font: 400 11px/14px var(--mono);
+            color: var(--ok)
+        }
+
+        /* ---------- card ---------- */
+        .card {
+            position: relative;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid rgba(92, 64, 61, .5);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .5)
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: -96px;
+            right: -96px;
+            width: 192px;
+            height: 192px;
+            border-radius: 50%;
+            background: rgba(186, 20, 26, .2);
+            filter: blur(48px);
+            pointer-events: none
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 24px;
+            line-height: 32px;
+            letter-spacing: -.015em;
+            font-weight: 700
+        }
+
+        .ssl {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: var(--surface-hi);
+            border: 1px solid rgba(92, 64, 61, .4);
+            font: 500 10px/14px var(--mono);
+            color: var(--muted);
+            text-transform: uppercase
+        }
+
+        .ssl .icon {
+            font-size: 13px;
+            color: var(--ok)
+        }
+
+        .sub {
+            margin: 4px 0 20px;
+            color: var(--muted)
+        }
+
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: var(--err-bg);
+            border: 1px solid rgba(255, 180, 171, .4);
+            color: #ffdad6;
+            font-size: 13px
+        }
+
+        .alert .icon {
+            color: var(--err);
+            font-size: 20px
+        }
+
+        .alert.info {
+            background: var(--surface-hi);
+            border-color: rgba(255, 180, 171, .35);
+            color: var(--text)
+        }
+
+        .alert.info .icon {
+            color: var(--primary)
+        }
+
+        .alert[hidden] {
+            display: none
+        }
+
+        .alert button {
+            margin-left: auto;
+            background: none;
+            border: 0;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0
+        }
+
+        .alert button:hover {
+            color: var(--text)
+        }
+
+        .sso {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 0;
+            background: var(--primary-c);
+            color: var(--on-primary);
+            cursor: pointer;
+            font-family: var(--sans);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+            transition: .2s;
+            text-align: left
+        }
+
+        .sso:hover {
+            background: var(--primary-c-hover)
+        }
+
+        .sso:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            background: var(--primary-c)
+        }
+
+        .ms {
+            display: grid;
+            grid-template-columns: 6px 6px;
+            gap: 2px;
+            padding: 2px;
+            background: rgba(255, 255, 255, .1);
+            border-radius: 2px
+        }
+
+        .ms i {
+            width: 6px;
+            height: 6px;
+            display: block
+        }
+
+        .ms i:nth-child(1) {
+            background: #f25022
+        }
+
+        .ms i:nth-child(2) {
+            background: #7fba00
+        }
+
+        .ms i:nth-child(3) {
+            background: #00a4ef
+        }
+
+        .ms i:nth-child(4) {
+            background: #ffb900
+        }
+
+        .sso b {
+            display: block;
+            font-size: 16px;
+            line-height: 22px;
+            font-weight: 600
+        }
+
+        .sso small {
+            font: 400 11px/14px var(--mono);
+            color: rgba(255, 255, 255, .8)
+        }
+
+        .hint {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 4px 6px;
+            font: 600 11px/14px var(--mono);
+            color: var(--primary)
+        }
+
+        .hint span:last-child {
+            font-weight: 400;
+            font-size: 10px;
+            color: var(--muted)
+        }
+
+        .divider {
+            position: relative;
+            margin: 24px 0;
+            text-align: center
+        }
+
+        .divider::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            border-top: 1px solid rgba(92, 64, 61, .4)
+        }
+
+        .divider span {
+            position: relative;
+            background: var(--surface);
+            padding: 0 14px;
+            font: 500 11px/14px var(--mono);
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .06em
+        }
+
+        form {
+            display: grid;
+            gap: 16px
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500
+        }
+
+        .field {
+            position: relative;
+            display: flex;
+            align-items: center
+        }
+
+        .field .lead-ico {
+            position: absolute;
+            left: 12px;
+            color: var(--muted);
+            pointer-events: none
+        }
+
+        input[type=text],
+        input[type=password] {
+            width: 100%;
+            padding: 10px 40px 10px 40px;
+            border-radius: 8px;
+            background: var(--surface-lo);
+            color: var(--text);
+            border: 1px solid rgba(92, 64, 61, .5);
+            font: 14px/20px var(--sans);
+            transition: border-color .15s
+        }
+
+        input::placeholder {
+            color: #555b66
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary)
+        }
+
+        .eye {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: 0;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 2px
+        }
+
+        .eye:hover {
+            color: var(--text)
+        }
+
+        .submit {
+            width: 100%;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 20px;
+            border-radius: 8px;
+            background: var(--surface-hi);
+            color: var(--text);
+            cursor: pointer;
+            border: 1px solid rgba(92, 64, 61, .6);
+            font: 600 16px/24px var(--sans);
+            transition: .2s
+        }
+
+        .submit:hover {
+            background: var(--surface-hst);
+            border-color: var(--primary-c)
+        }
+
+        .submit:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px
+        }
+
+        .submit .icon {
+            color: var(--primary)
+        }
+
+        .demo {
+            margin-top: 24px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: rgba(28, 32, 38, .5);
+            border-top: 1px solid rgba(92, 64, 61, .2);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap
+        }
+
+        .demo-l {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .demo-l .icon {
+            color: var(--muted);
+            font-size: 18px
+        }
+
+        .demo-l b {
+            display: block;
+            font: 600 11px/14px var(--mono)
+        }
+
+        .demo-l span {
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .demo button {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: var(--surface-hst);
+            color: var(--ok);
+            border: 1px solid rgba(0, 107, 73, .5);
+            font: 500 11px/14px var(--mono);
+            transition: .2s
+        }
+
+        .demo button:hover {
+            background: #353940;
+            border-color: rgba(78, 222, 163, .6)
+        }
+
+        .note {
+            margin: 16px 0 0;
+            text-align: center;
+            font-size: 11px;
+            color: #ab8885
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="topbar-in">
+            <div class="brand">
+                <div class="logo"><span class="icon">precision_manufacturing</span></div>
+                <div>
+                    <div class="brand-name">HUSTBot <span class="tag">HUB</span></div>
+                    <div class="brand-sub">Đại học Bách Khoa Hà Nội</div>
+                </div>
+            </div>
+            <div class="pill"><span class="dot"></span>Trợ lý học tập cá nhân hóa</div>
+        </div>
+    </header>
+
+    <main>
+        <div class="wrap">
+
+            <!-- ============ CỘT TRÁI ============ -->
+            <section class="left">
+                <div>
+                    <span class="badge"><span class="icon">verified_user</span>Hệ thống Học vụ Thông minh</span>
+                    <h1>Cổng đăng nhập &amp; Trợ lý học thuật Bách Khoa</h1>
+                    <p class="lead">Tập hợp bài tập, deadline, thời khóa biểu và điểm rèn luyện của riêng bạn vào một
+                        nơi, kèm trợ lý AI luôn sẵn sàng hỗ trợ.</p>
+
+                    <div class="features">
+                        <div class="feat">
+                            <div class="feat-ico"><span class="icon fill">bolt</span></div>
+                            <div>
+                                <h3>Deadline &amp; lịch học gọn một chỗ</h3>
+                                <p>Bài tập, bài thi và thời khóa biểu của bạn được sắp theo thời hạn, nhìn là biết việc
+                                    nào gấp.</p>
+                            </div>
+                        </div>
+                        <div class="feat">
+                            <div class="feat-ico green"><span class="icon fill">smart_toy</span></div>
+                            <div>
+                                <h3>Trợ lý AI hiểu dữ liệu của bạn</h3>
+                                <p>Hỏi "mai có bài gì?", "còn thiếu bao nhiêu điểm rèn luyện?" và nhận câu trả lời dựa
+                                    trên dữ liệu thật.</p>
+                            </div>
+                        </div>
+                        <div class="feat">
+                            <div class="feat-ico grey"><span class="icon fill">verified</span></div>
+                            <div>
+                                <h3>Dữ liệu cá nhân tách biệt</h3>
+                                <p>Mỗi tài khoản chỉ xem và thao tác được trên dữ liệu của chính mình, trợ lý AI cũng
+                                    vậy.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status">
+                    <div class="status-head"><span class="icon" style="font-size:16px">monitor_heart</span>TRẠNG THÁI HỆ
+                        THỐNG</div>
+                    <div class="status-grid">
+                        <div class="status-item"><b><i></i>Máy chủ HUSTBot</b><span>Hoạt động</span></div>
+                        <div class="status-item"><b><i></i>Trợ lý AI</b><span>Sẵn sàng</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ CỘT PHẢI ============ -->
+            <section>
+                <div class="card">
+                    <div class="card-head">
+                        <h2>Đăng nhập tài khoản</h2>
+                        <span class="ssl"><span class="icon">lock</span>Bảo mật</span>
+                    </div>
+                    <p class="sub">Nhập MSSV và mật khẩu được cấp để vào HUSTBot.</p>
+
+                    <div class="alert info" id="notice" hidden>
+                        <span class="icon">info</span><span id="notice-text"></span>
+                        <button type="button" aria-label="Đóng"
+                            onclick="document.getElementById('notice').hidden=true"><span class="icon"
+                                style="font-size:18px">close</span></button>
+                    </div>
+                    {% if error %}
+                    <div class="alert" role="alert"><span class="icon">error</span><span>{{ error }}</span></div>
+                    {% endif %}
+
+                    <div class="hint"><span>Đăng nhập một chạm</span><span>Sắp ra mắt</span></div>
+                    <button class="sso" type="button" disabled title="Chưa kết nối Microsoft 365">
+                        <span class="ms"><i></i><i></i><i></i><i></i></span>
+                        <span><b>Đăng nhập bằng Microsoft 365 HUST</b><small>@sis.hust.edu.vn hoặc
+                                @hust.edu.vn</small></span>
+                    </button>
+
+                    <div class="divider"><span>Hoặc nhập MSSV &amp; mật khẩu</span></div>
+
+                    <form method="post" autocomplete="on">
+                        <div>
+                            <label for="mssv">Mã số sinh viên (MSSV)</label>
+                            <div class="field">
+                                <span class="icon lead-ico">badge</span>
+                                <input type="text" id="mssv" name="mssv" placeholder="Ví dụ: 20210001" required
+                                    autofocus inputmode="numeric" autocomplete="username">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="password">Mật khẩu</label>
+                            <div class="field">
+                                <span class="icon lead-ico">key</span>
+                                <input type="password" id="password" name="password" placeholder="Nhập mật khẩu"
+                                    required autocomplete="current-password">
+                                <button type="button" class="eye" id="toggle" title="Hiện/Ẩn mật khẩu"><span
+                                        class="icon" id="eye-ico">visibility</span></button>
+                            </div>
+                        </div>
+                        <button class="submit" type="submit"><span class="icon">login</span>Đăng nhập vào
+                            HUSTBot</button>
+                    </form>
+
+                    <div class="demo">
+                        <div class="demo-l"><span class="icon">terminal</span>
+                            <div><b>Chế độ trải nghiệm nhanh</b><span>Điền sẵn tài khoản demo</span></div>
+                        </div>
+                        <button type="button" id="demo">Dùng tài khoản demo <span class="icon"
+                                style="font-size:14px">arrow_right_alt</span></button>
+                    </div>
+                    <p class="note">Thông tin của bạn chỉ được dùng để cá nhân hóa trải nghiệm trong HUSTBot.</p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div>HUSTBot · Trợ lý học tập dành cho sinh viên Đại học Bách Khoa Hà Nội</div>
+        <div>Bản quyền © 2026</div>
+    </footer>
+
+    <script>
+        (function () {
+            var pwd = document.getElementById('password'), ico = document.getElementById('eye-ico');
+            document.getElementById('toggle').addEventListener('click', function () {
+                var show = pwd.type === 'password'; pwd.type = show ? 'text' : 'password'; ico.textContent = show ? 'visibility_off' : 'visibility';
+            });
+            document.getElementById('demo').addEventListener('click', function () {
+                document.getElementById('mssv').value = '20210001'; pwd.value = '123456';
+                document.getElementById('notice-text').textContent = 'Đã điền tài khoản demo (Nguyễn Văn A). Bấm "Đăng nhập" để tiếp tục.';
+                document.getElementById('notice').hidden = false;
+            });
+        })();
+    </script>
+</body>
+
+</html>

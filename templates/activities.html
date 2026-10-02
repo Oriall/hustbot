@@ -1,4 +1,54 @@
-{% extends "base.html" %}{% block content %}
+{% extends "base.html" %}
+{% block title %}Điểm rèn luyện - HUSTBot{% endblock %}
+{% block content %}
+<style>
+  /* ---- CSS riêng của trang Điểm rèn luyện (phần mới/sửa) ---- */
+  a.dr-btn {
+    text-decoration: none
+  }
+
+  .dr-empty {
+    text-align: center;
+    color: var(--mut);
+    font-size: 13px;
+    padding: 22px 12px;
+    background: var(--s1);
+    border-radius: 8px;
+    border: 1px dashed var(--s4)
+  }
+
+  .dr-st.wait {
+    color: var(--warn);
+    background: rgba(251, 191, 36, .15)
+  }
+
+  .dr-x {
+    background: none;
+    border: 0;
+    color: var(--mut);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px
+  }
+
+  .dr-x:hover {
+    background: var(--s3);
+    color: var(--err)
+  }
+
+  .dr-x:disabled,
+  .dr-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed
+  }
+
+  .dr-crit .dr-tip b {
+    color: var(--tx)
+  }
+</style>
+
 <div class="dr">
 
   <!-- HEADER -->
@@ -9,55 +59,68 @@
       </div>
       <div class="dr-titlerow">
         <h1>Điểm rèn luyện &amp; Hoạt động Ngoại khóa</h1>
-        <span class="dr-badge">iCTSV Sync: Active</span>
+        <span class="dr-badge">{{ user.mssv }}</span>
       </div>
-      <p class="dr-sub"><span class="sd ok"></span>Học kỳ 2024.1 • Cập nhật tự động từ cổng iCTSV lúc 08:30 hôm nay</p>
+      <p class="dr-sub"><span class="sd ok"></span>{{ user.name }}{% if user.cls %} • {{ user.cls }}{% endif %} • Cập
+        nhật lúc {{ now.strftime('%H:%M %d/%m/%Y') }}</p>
     </div>
     <div class="dr-acts">
-      <button class="dr-btn" title="Quy chế công tác sinh viên ĐHBK"><span class="icon">gavel</span>Quy chế ĐRL ĐHBK
-        HN</button>
-      <button class="dr-btn" title="Tải hồ sơ minh chứng PDF"><span class="icon">download</span>Xuất minh chứng
-        PDF</button>
-      <button class="dr-btn pri" id="sync-btn"><span class="icon" id="dr-sync-icon">sync</span>Đồng bộ iCTSV
-        ngay</button>
+      <a class="dr-btn" href="https://ctsv.hust.edu.vn" target="_blank" rel="noopener"><span
+          class="icon">gavel</span>Quy chế ĐRL ĐHBK HN</a>
+      <button class="dr-btn" type="button" id="print-btn"><span class="icon">download</span>Xuất minh chứng PDF</button>
+      <button class="dr-btn pri" type="button" id="sync-btn"><span class="icon" id="dr-sync-icon">sync</span>Làm mới dữ
+        liệu</button>
     </div>
   </div>
 
   <!-- KPI -->
   <div class="dr-kpis">
     <div class="dr-kpi">
-      <div class="dr-kh"><span class="dr-kl">TỔNG ĐIỂM DỰ KIẾN</span>
-        <span class="dr-pill ok"><span class="sd ok"></span>Xếp loại Tốt</span>
+      <div class="dr-kh"><span class="dr-kl">TỔNG ĐIỂM HIỆN TẠI</span>
+        <span class="dr-pill {{ 'ok' if total >= 80 else 'hot' if total < 65 else 'mut' }}"><span
+            class="sd {{ 'ok' if total >= 80 }}"></span>Xếp loại {{ rank }}</span>
       </div>
-      <div class="dr-big"><b>88</b><span>/ 100</span></div>
+      <div class="dr-big"><b>{{ total }}</b><span>/ {{ max_total }}</span></div>
       <div class="dr-cap"><span class="icon i16 t-pri">trending_up</span>
-        <span>Chỉ còn thiếu <b class="t-pri">2 điểm</b> để đạt mốc <b class="t-tx">Xuất sắc (≥ 90đ)</b></span>
+        {% if gap > 0 %}<span>Còn thiếu <b class="t-pri">{{ gap }} điểm</b> để đạt <b class="t-tx">Xuất sắc (≥
+            90đ)</b></span>
+        {% else %}<span class="t-ok">Đã đạt mốc <b>Xuất sắc (≥ 90đ)</b></span>{% endif %}
       </div>
     </div>
 
     <div class="dr-kpi">
-      <div class="dr-kh"><span class="dr-kl">TIÊU CHÍ CẦN BỔ SUNG</span><span class="dr-pill hot">Đang thiếu</span>
+      <div class="dr-kh"><span class="dr-kl">TIÊU CHÍ CẦN BỔ SUNG</span>
+        {% if weakest %}<span class="dr-pill hot">Đang thiếu</span>{% else %}<span class="dr-pill ok">Đủ điểm</span>{%
+        endif %}
       </div>
+      {% if weakest %}
       <div>
-        <div class="dr-krow"><b class="dr-ellip">Tiêu chí 3: Đ-Đoàn-Hội</b><span class="mono t-pri">13/20đ</span></div>
-        <div class="dr-track"><i class="hot" style="width:65%"></i></div>
+        <div class="dr-krow"><b class="dr-ellip">{{ weakest.code }}: {{ weakest.name }}</b><span class="mono t-pri">{{
+            weakest.now }}/{{ weakest.max }}đ</span></div>
+        <div class="dr-track"><i class="hot" style="width:{{ weakest.pct }}%"></i></div>
       </div>
-      <div class="dr-cap between"><span>Thiếu 7đ tối đa</span><span class="t-ok">Cần +2đ để chạm 90đ</span></div>
+      <div class="dr-cap between"><span>Thiếu {{ weakest.missing }}đ tối đa</span>{% if gap > 0 %}<span class="t-ok">Cần
+          +{{ gap }}đ để chạm 90đ</span>{% endif %}</div>
+      {% else %}
+      <div class="dr-cap"><span class="icon i16 t-ok">check_circle</span><span>Tất cả tiêu chí đã đạt điểm tối đa</span>
+      </div>
+      {% endif %}
     </div>
 
     <div class="dr-kpi">
-      <div class="dr-kh"><span class="dr-kl">HOẠT ĐỘNG ĐÃ THAM GIA</span><span class="dr-pill mut">Kỳ 2024.1</span>
-      </div>
-      <div class="dr-big"><b>06</b><span>sự kiện</span></div>
-      <div class="dr-cap"><span class="icon i16 t-ok">check_circle</span><span>100% đã được phê duyệt QR iCTSV</span>
+      <div class="dr-kh"><span class="dr-kl">HOẠT ĐỘNG ĐÃ ĐĂNG KÝ</span><span class="dr-pill mut">Tổng</span></div>
+      <div class="dr-big"><b>{{ '%02d' % history|length }}</b><span>sự kiện</span></div>
+      <div class="dr-cap"><span class="icon i16 t-ok">check_circle</span>
+        <span>{{ history|length - upcoming|length }} đã diễn ra • {{ upcoming|length }} sắp diễn ra</span>
       </div>
     </div>
 
     <div class="dr-kpi">
-      <div class="dr-kh"><span class="dr-kl">SẮP DIỄN RA ĐÃ ĐĂNG KÝ</span><span class="dr-pill ok">Tuần 08</span></div>
-      <div class="dr-big ok"><b>02</b><span>sự kiện tuần này</span></div>
+      <div class="dr-kh"><span class="dr-kl">SẮP DIỄN RA ĐÃ ĐĂNG KÝ</span><span class="dr-pill ok">Dự kiến</span></div>
+      <div class="dr-big ok"><b>{{ '%02d' % upcoming|length }}</b><span>sự kiện</span></div>
       <div class="dr-cap"><span class="icon i16 t-ok">add_circle</span>
-        <span>Tiềm năng: <b class="t-ok">+8đ ĐRL</b> (Dự kiến → <b class="t-tx">96đ</b>)</span>
+        <span>Tiềm năng: <b class="t-ok">+{{ projected - total }}đ ĐRL</b> (Dự kiến → <b class="t-tx">{{ projected
+            }}đ</b>)</span>
       </div>
     </div>
   </div>
@@ -70,227 +133,195 @@
 
       <section class="dr-sec">
         <div class="dr-sh">
-          <h2><span class="icon t-pri">tune</span>Phân bổ 5 Tiêu chí ĐRL</h2>
+          <h2><span class="icon t-pri">tune</span>Phân bổ {{ criteria|length }} Tiêu chí ĐRL</h2>
           <small>Quy chế CTSV ĐH Bách Khoa</small>
         </div>
         <div class="dr-list">
-
-          <div class="dr-crit">
+          {% for c in criteria %}
+          {% set low = c.pct < 70 %} <div class="dr-crit {{ 'alert' if low }}">
             <div class="dr-ct">
-              <div class="dr-cl"><span class="dr-code">TC1</span>
-                <div>
-                  <h3>Ý thức học tập &amp; nghiên cứu khoa học</h3>
-                  <p>Tham gia NCKH Lab ĐHBK, thi Olympic, không vi phạm quy chế thi cử</p>
-                </div>
-              </div>
-              <div class="dr-pts"><b>18</b><span>/ 20đ</span></div>
-            </div>
-            <div class="dr-track"><i style="width:90%"></i></div>
-          </div>
-
-          <div class="dr-crit">
-            <div class="dr-ct">
-              <div class="dr-cl"><span class="dr-code">TC2</span>
+              <div class="dr-cl"><span class="dr-code {{ 'hot' if low }}">{{ c.code }}</span>
                 <div>
                   <div class="dr-tt">
-                    <h3>Ý thức chấp hành nội quy, quy chế trường</h3><span class="dr-pill ok">Tối đa</span>
+                    <h3>{{ c.name }}</h3>
+                    {% if c.missing == 0 %}<span class="dr-pill ok">Tối đa</span>
+                    {% elif low %}<span class="dr-pill hot">Đang thiếu điểm</span>{% endif %}
                   </div>
-                  <p>Hoàn thành SHCD đầu năm, bảo hiểm y tế, trật tự giảng đường &amp; KTX</p>
                 </div>
               </div>
-              <div class="dr-pts ok"><b>25</b><span>/ 25đ</span></div>
+              <div class="dr-pts {{ 'ok' if c.missing == 0 else 'hot' if low }}"><b>{{ c.now }}</b><span>/ {{ c.max
+                  }}đ</span></div>
             </div>
-            <div class="dr-track"><i style="width:100%"></i></div>
-          </div>
-
-          <div class="dr-crit alert">
-            <div class="dr-ct">
-              <div class="dr-cl"><span class="dr-code hot">TC3</span>
-                <div>
-                  <div class="dr-tt">
-                    <h3>Hoạt động chính trị - xã hội, văn hóa, thể thao</h3><span class="dr-pill hot">Đang thiếu
-                      điểm</span>
-                  </div>
-                  <p>Hoạt động Đoàn - Hội, chiến dịch tình nguyện, thể thao HUST Games</p>
-                </div>
-              </div>
-              <div class="dr-pts hot"><b>13</b><span>/ 20đ</span></div>
-            </div>
-            <div class="dr-track"><i class="hot" style="width:65%"></i></div>
+            <div class="dr-track"><i class="{{ 'hot' if low }}" style="width:{{ c.pct }}%"></i></div>
+            {% if c.missing > 0 %}
+            {% set n = suggestions|selectattr('crit', 'equalto', c.id)|list|length %}
             <div class="dr-tip"><span class="icon i15">tips_and_updates</span>
-              <span>Cần thêm 1 workshop hoặc 1 giải đấu thể thao để chạm mốc Xuất sắc (≥90đ tổng).</span>
+              <span>Còn thiếu <b>{{ c.missing }}đ</b>.
+                {% if n %}Có <b>{{ n }}</b> sự kiện gợi ý thuộc tiêu chí này.{% else %}Hiện chưa có sự kiện phù hợp để
+                cộng điểm.{% endif %}</span>
             </div>
-          </div>
-
-          <div class="dr-crit">
-            <div class="dr-ct">
-              <div class="dr-cl"><span class="dr-code">TC4</span>
-                <div>
-                  <h3>Phẩm chất công dân &amp; quan hệ cộng đồng</h3>
-                  <p>Hoạt động thiện nguyện, hiến máu nhân đạo, tương trợ cộng đồng SV</p>
-                </div>
-              </div>
-              <div class="dr-pts"><b>22</b><span>/ 25đ</span></div>
-            </div>
-            <div class="dr-track"><i style="width:88%"></i></div>
-          </div>
-
-          <div class="dr-crit">
-            <div class="dr-ct">
-              <div class="dr-cl"><span class="dr-code">TC5</span>
-                <div>
-                  <div class="dr-tt">
-                    <h3>Công tác cán bộ lớp, đoàn thể &amp; Khen thưởng</h3><span class="dr-pill ok">Tối đa</span>
-                  </div>
-                  <p>Thành viên Ban chấp hành Chi đoàn KHMT01, danh hiệu SV tiêu biểu</p>
-                </div>
-              </div>
-              <div class="dr-pts ok"><b>10</b><span>/ 10đ</span></div>
-            </div>
-            <div class="dr-track"><i style="width:100%"></i></div>
-          </div>
-
+            {% endif %}
         </div>
-      </section>
-
-      <section class="dr-sec">
-        <div class="dr-sh">
-          <h2><span class="icon t-mut">history</span>Lịch sử hoạt động đã ghi nhận (Kỳ 2024.1)</h2>
-          <small class="dr-inl">Tổng 04 minh chứng <span class="sd ok" style="margin:0 0 0 8px"></span></small>
-        </div>
-        <div class="dr-scroll">
-          <table class="dr-tbl">
-            <thead>
-              <tr>
-                <th>Hoạt động / Sự kiện</th>
-                <th>Tiêu chí</th>
-                <th class="c">Điểm</th>
-                <th>Trạng thái</th>
-                <th class="r">Ngày ghi nhận</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><b>Ngày hội Sinh viên Sáng tạo &amp; Khởi nghiệp SoICT</b><small>Tòa B1 • Ban tổ chức SoICT
-                    HUST</small></td>
-                <td><span class="dr-tc">TC1: NCKH</span></td>
-                <td class="c pt">+5đ</td>
-                <td><span class="dr-st"><span class="icon i14">qr_code_2</span>Đã duyệt QR</span></td>
-                <td class="r mono t-mut">15/09/2024</td>
-              </tr>
-              <tr>
-                <td><b>Chạy việt dã HUST Run 2024 (Sân C1)</b><small>Đoàn Thanh niên ĐHBK Hà Nội</small></td>
-                <td><span class="dr-tc">TC3: Thể thao</span></td>
-                <td class="c pt">+3đ</td>
-                <td><span class="dr-st"><span class="icon i14">check</span>Đã duyệt</span></td>
-                <td class="r mono t-mut">28/09/2024</td>
-              </tr>
-              <tr>
-                <td><b>Tuần sinh hoạt công dân sinh viên đầu năm</b><small>Hội trường C2 • Phòng CTSV</small></td>
-                <td><span class="dr-tc">TC2: Nội quy</span></td>
-                <td class="c pt">+10đ</td>
-                <td><span class="dr-st"><span class="icon i14">verified</span>Đã duyệt</span></td>
-                <td class="r mono t-mut">05/10/2024</td>
-              </tr>
-              <tr>
-                <td><b>Hiến máu nhân đạo “Giọt hồng Bách Khoa”</b><small>CLB Thanh niên Tình nguyện Vận động Hiến
-                    máu</small></td>
-                <td><span class="dr-tc">TC4: Cộng đồng</span></td>
-                <td class="c pt">+5đ</td>
-                <td><span class="dr-st"><span class="icon i14">verified</span>Đã duyệt</span></td>
-                <td class="r mono t-mut">12/10/2024</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+        {% endfor %}
     </div>
+    </section>
 
-    <!-- RIGHT -->
-    <div class="dr-col">
-
-      <section class="dr-sec dr-gap">
-        <div class="between" style="align-items:flex-start">
-          <div>
-            <h2 style="margin:0"><span class="icon t-ok">psychology</span>Gợi ý hoạt động thông minh</h2>
-            <p class="dr-note">Đã tự động loại trừ trùng lịch học &amp; nhắm đúng <b class="t-pri">Tiêu chí 3</b> đang
-              thiếu.</p>
-          </div>
-          <span class="dr-pill ok mono nw">3 Matching</span>
-        </div>
-
-        <div class="dr-ev best">
-          <div class="between">
-            <span class="dr-pill solid"><span class="icon i14">auto_awesome</span>GỢI Ý TỐT NHẤT</span>
-            <span class="dr-pill ok">+5đ Tiêu chí 3</span>
-          </div>
-          <div>
-            <h3>Workshop: GenAI Architecture in Enterprise Cloud</h3>
-            <p class="t-ok dr-inl"><span class="icon i14">event_available</span>Chiều Thứ Tư, 23/10 (17:30 - 19:30) •
-              Không trùng lịch học!</p>
-          </div>
-          <div class="dr-meta">
-            <span><span class="icon i15">location_on</span>Hội trường C2</span>
-            <span><span class="icon i15">group</span>Còn 42 vé đăng ký</span>
-          </div>
-          <div class="dr-hint"><span class="icon i16 t-ok">check_circle</span>
-            <span>Tham gia sự kiện này sẽ giúp bạn <b>chạm ngay 93đ (Xuất sắc)</b>.</span>
-          </div>
-          <button class="dr-btn pri full"><span class="icon">qr_code</span>Đăng ký nhận vé QR iCTSV</button>
-        </div>
-
-        <div class="dr-ev">
-          <div class="between" style="align-items:flex-start">
-            <small>Thể thao • Đoàn Hội SoICT</small><span class="dr-pill ok">+3đ TC3</span>
-          </div>
-          <div>
-            <h3>Giải bóng đá Cúp Sinh viên SoICT 2024</h3>
-            <p>Thứ Bảy, 26/10 (08:00) • Sân vận động Bách Khoa</p>
-          </div>
-          <div class="between"><small>Mở đăng ký tự do</small><button class="dr-btn sm">Đăng ký tham gia</button></div>
-        </div>
-
-        <div class="dr-ev">
-          <div class="between" style="align-items:flex-start">
-            <small>Hướng nghiệp • Ban CTSV &amp; FPT</small><span class="dr-pill mut">+4đ TC1/TC4</span>
-          </div>
-          <div>
-            <h3>Tọa đàm Hướng nghiệp cùng Doanh nghiệp Nhật Bản</h3>
-            <p>Chủ Nhật, 27/10 (09:00) • Hội trường Thư viện Tạ Quang Bửu</p>
-          </div>
-          <div class="between"><small>500 chỗ ngồi</small><button class="dr-btn sm">Xem chi tiết</button></div>
-        </div>
-      </section>
-
-      <section class="dr-sec dr-gap">
-        <div class="dr-sh" style="margin-bottom:0">
-          <h2><span class="logo sm"><span class="icon i16">neurology</span></span>Trợ lý AI Phân tích &amp; Tư vấn ĐRL
-          </h2>
-          <small class="t-ok nw">Real-time Advisor</small>
-        </div>
-        <div class="dr-ai">
-          <p>Chào <b>Văn A</b>! Nếu bạn tham gia <b>Workshop GenAI tại C2</b> vào chiều mai, điểm rèn luyện của bạn sẽ
-            đạt <b class="t-ok">93/100 (Xếp loại Xuất sắc)</b>.</p>
-          <div class="dr-hint mut"><span class="icon i18 t-ok">workspace_premium</span>
-            <span>Điều này giúp bạn đủ điều kiện nộp hồ sơ xét <b>Học bổng Khuyến khích Tài năng Viettel Digital
-                2024</b> (yêu cầu ĐRL ≥ 90đ + CPA ≥ 3.2).</span>
-          </div>
-        </div>
-        <button class="ai-prompt"><span class="dr-inl"><span class="icon i16 t-pri">verified</span>Kiểm tra điều kiện
-            học bổng liên quan</span><span class="icon i16">chevron_right</span></button>
-        <button class="ai-prompt"><span class="dr-inl"><span class="icon i16">contact_support</span>Gửi thắc mắc điểm
-            phúc khảo iCTSV</span><span class="icon i16">chevron_right</span></button>
-      </section>
-
-    </div>
+    <section class="dr-sec">
+      <div class="dr-sh">
+        <h2><span class="icon t-mut">history</span>Hoạt động đã đăng ký</h2>
+        <small class="dr-inl">Tổng {{ '%02d' % history|length }} hoạt động</small>
+      </div>
+      {% if history %}
+      <div class="dr-scroll">
+        <table class="dr-tbl">
+          <thead>
+            <tr>
+              <th>Hoạt động / Sự kiện</th>
+              <th>Tiêu chí</th>
+              <th class="c">Điểm</th>
+              <th>Trạng thái</th>
+              <th class="r">Ngày</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in history %}
+            <tr>
+              <td><b>{{ e.name }}</b><small>{{ e.place }}</small></td>
+              <td><span class="dr-tc">{{ e.crit_code }}</span></td>
+              <td class="c pt">+{{ e.gain }}đ</td>
+              <td>
+                {% if e.past %}<span class="dr-st"><span class="icon i14">verified</span>Đã ghi nhận</span>
+                {% else %}<span class="dr-st wait"><span class="icon i14">schedule</span>Chờ tham gia</span>
+                <button class="dr-x" type="button" data-reg-url="{{ url_for('api_event_register', event_id=e.id) }}"
+                  data-on="0">Hủy</button>{% endif %}
+              </td>
+              <td class="r mono t-mut">{{ e.date }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="dr-empty">Bạn chưa đăng ký hoạt động nào. Chọn một sự kiện ở mục gợi ý bên phải nhé.</div>
+      {% endif %}
+    </section>
   </div>
+
+  <!-- RIGHT -->
+  <div class="dr-col">
+
+    <section class="dr-sec dr-gap">
+      <div class="between" style="align-items:flex-start">
+        <div>
+          <h2 style="margin:0"><span class="icon t-ok">psychology</span>Gợi ý hoạt động thông minh</h2>
+          <p class="dr-note">Ưu tiên sự kiện còn cộng được điểm vào các tiêu chí chưa đạt tối đa.</p>
+        </div>
+        <span class="dr-pill ok mono nw">{{ suggestions|length }} phù hợp</span>
+      </div>
+
+      {% for e in suggestions %}
+      {% if loop.first %}
+      <div class="dr-ev best">
+        <div class="between">
+          <span class="dr-pill solid"><span class="icon i14">auto_awesome</span>GỢI Ý TỐT NHẤT</span>
+          <span class="dr-pill ok">+{{ e.gain }}đ {{ e.crit_code }}</span>
+        </div>
+        <div>
+          <h3>{{ e.name }}</h3>
+          <p class="t-ok dr-inl"><span class="icon i14">event_available</span>{{ e.weekday }}, {{ e.date }}</p>
+        </div>
+        <div class="dr-meta">
+          <span><span class="icon i15">location_on</span>{{ e.place }}</span>
+          <span><span class="icon i15">category</span>{{ e.crit_name }}</span>
+        </div>
+        <div class="dr-hint"><span class="icon i16 t-ok">check_circle</span>
+          <span>Tham gia sẽ giúp bạn đạt <b>{{ projected + e.gain }}đ ({{ rank_of(projected + e.gain) }})</b>.</span>
+        </div>
+        <button class="dr-btn pri full" type="button" data-reg-url="{{ url_for('api_event_register', event_id=e.id) }}"
+          data-on="1"><span class="icon">qr_code</span>Đăng ký tham gia</button>
+      </div>
+      {% else %}
+      <div class="dr-ev">
+        <div class="between" style="align-items:flex-start">
+          <small>{{ e.crit_name }}</small><span class="dr-pill ok">+{{ e.gain }}đ {{ e.crit_code }}</span>
+        </div>
+        <div>
+          <h3>{{ e.name }}</h3>
+          <p>{{ e.weekday }}, {{ e.date }} • {{ e.place }}</p>
+        </div>
+        <div class="between"><small>Mở đăng ký</small><button class="dr-btn sm" type="button"
+            data-reg-url="{{ url_for('api_event_register', event_id=e.id) }}" data-on="1">Đăng ký tham gia</button>
+        </div>
+      </div>
+      {% endif %}
+      {% else %}
+      <div class="dr-empty">Hiện không có sự kiện mới nào còn cộng được điểm cho bạn.</div>
+      {% endfor %}
+    </section>
+
+    <section class="dr-sec dr-gap">
+      <div class="dr-sh" style="margin-bottom:0">
+        <h2><span class="logo sm"><span class="icon i16">neurology</span></span>Trợ lý AI Phân tích &amp; Tư vấn ĐRL
+        </h2>
+        <small class="t-ok nw">Real-time Advisor</small>
+      </div>
+      <div class="dr-ai">
+        <p>Chào <b>{{ user.name.split()[-1] }}</b>!
+          {% if suggestions %}
+          Nếu bạn tham gia <b>{{ suggestions[0].name }}</b> ({{ suggestions[0].date }}), điểm rèn luyện dự kiến sẽ đạt
+          <b class="t-ok">{{ projected + suggestions[0].gain }}/{{ max_total }} ({{ rank_of(projected +
+            suggestions[0].gain) }})</b>.
+          {% elif gap > 0 %}
+          Điểm dự kiến của bạn là <b class="t-ok">{{ projected }}/{{ max_total }} ({{ projected_rank }})</b>. Hiện chưa
+          có sự kiện mới phù hợp, hãy quay lại sau nhé.
+          {% else %}
+          Bạn đang đạt <b class="t-ok">{{ total }}/{{ max_total }} ({{ rank }})</b>. Hãy duy trì phong độ nhé!
+          {% endif %}
+        </p>
+        {% if weakest %}
+        <div class="dr-hint mut"><span class="icon i18 t-ok">workspace_premium</span>
+          <span>Tiêu chí còn thiếu nhiều nhất: <b>{{ weakest.code }} - {{ weakest.name }}</b> (thiếu {{ weakest.missing
+            }}đ).</span>
+        </div>
+        {% endif %}
+      </div>
+      <a class="ai-prompt" href="{{ url_for('assistant') }}"><span class="dr-inl"><span
+            class="icon i16 t-pri">verified</span>Hỏi trợ lý về điều kiện học bổng</span><span
+          class="icon i16">chevron_right</span></a>
+      <a class="ai-prompt" href="{{ url_for('assistant') }}"><span class="dr-inl"><span
+            class="icon i16">contact_support</span>Hỏi trợ lý về điểm rèn luyện</span><span
+          class="icon i16">chevron_right</span></a>
+    </section>
+
+  </div>
+</div>
 </div>{% endblock %}
 
 {% block scripts %}
 <script>
-  document.getElementById('sync-btn').addEventListener('click', function () {
-    var i = document.getElementById('dr-sync-icon'), b = this;
-    i.classList.add('rot'); b.classList.add('busy');
-    setTimeout(function () { i.classList.remove('rot'); b.classList.remove('busy'); }, 800);
+  // Đăng ký / hủy đăng ký sự kiện rồi tải lại trang để số liệu cập nhật
+  document.querySelectorAll('[data-reg-url]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      b.disabled = true;
+      fetch(b.dataset.regUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registered: b.dataset.on === '1' })
+      }).then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        location.reload();
+      }).catch(function () {
+        b.disabled = false;
+        alert('Không cập nhật được đăng ký, bạn thử lại nhé.');
+      });
+    });
   });
+
+  document.getElementById('sync-btn').addEventListener('click', function () {
+    document.getElementById('dr-sync-icon').classList.add('rot');
+    this.classList.add('busy');
+    setTimeout(function () { location.reload(); }, 600);
+  });
+
+  document.getElementById('print-btn').addEventListener('click', function () { window.print(); });
 </script>{% endblock %}
