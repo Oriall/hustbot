@@ -10,7 +10,7 @@ import gemini_bot  # noqa: E402
 from models import (SOURCES, ConductScore, Criterion, Event, EventRegistration, KBEntry,  # noqa: E402
                     ScheduleItem, Student, Task, db)
 from seed import seed_if_empty  # noqa: E402
-
+import connect
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///hustbot.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -18,7 +18,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-doi-khoa-nay-khi-de
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 db.init_app(app)
-
+app.register_blueprint(connect.bp)
 with app.app_context():
     db.create_all()
     seed_if_empty()
@@ -30,7 +30,7 @@ PAGES = {
     "activities": "Điểm rèn luyện & Hoạt động",
     "schedule": "Thời khóa biểu",
 }
-PUBLIC_ENDPOINTS = {"login", "static"}
+PUBLIC_ENDPOINTS = {"login", "static", "connect.ext_timetable"}
 
 
 # ---------------------------------------------------------------- xác thực

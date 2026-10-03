@@ -43,6 +43,7 @@ class Student(db.Model):
 
 
 class Task(db.Model):
+    __table_args__ = (db.UniqueConstraint("student_id", "source", "external_id"),)
     id = db.Column(db.Integer, primary_key=True)
     student_id = _owner()
     code = db.Column(db.String(20), nullable=False)
@@ -63,7 +64,7 @@ class Task(db.Model):
     cta = db.Column(db.String(120))
     done = db.Column(db.Boolean, default=False, nullable=False)
     done_at = db.Column(db.DateTime)
-
+    external_id = db.Column(db.String(80))  # id gốc từ hệ thống bên ngoài, dùng để đồng bộ
     def to_dict(self, now=None):
         now = now or datetime.now()
         mins = int((self.due_at - now).total_seconds() // 60)
@@ -85,6 +86,7 @@ class Task(db.Model):
 
 class ScheduleItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    source = db.Column(db.String(20), default="seed")
     student_id = _owner()
     day = db.Column(db.Integer, nullable=False, index=True)  # 2 = Thứ 2 ... 7 = Thứ 7, 8 = CN
     start = db.Column(db.String(5), nullable=False)

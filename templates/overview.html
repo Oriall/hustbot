@@ -83,53 +83,20 @@
     <div class="stack">
       <section class="panel">
         <div class="between sh">
-          <div class="tags"><i class="sd big"></i>
-            <h2>Nhiệm vụ & Bài thi cần ưu tiên</h2><span class="pill">3 Nhiệm vụ khẩn</span>
-          </div>
-          <a class="link" href="{{ url_for('assignments') }}">Tất cả bài tập<span
-              class="icon i16">arrow_forward</span></a>
-        </div>
-        <div class="task">
-          <div class="between">
-            <div class="tags"><span class="pill">MS Teams</span><span class="tag t-pri">Trọng số 30% Điểm CK</span>
-            </div>
-            <span class="t-pri mono"><span class="icon i16 pulse">timer</span> Còn 2h 15m (14:00)</span>
-          </div>
-          <div class="between top">
-            <div>
-              <h3>Kiểm tra giữa kỳ Vật lý đại cương 1 (PH1110)</h3>
-              <p class="muted">Thời gian làm bài: 30 phút • Trắc nghiệm 25 câu • Yêu cầu bật Camera toàn thời gian</p>
-            </div>
-            <a class="btn primary nw" href="{{ url_for('assignments') }}">Vào phòng thi<span
-                class="icon i16">open_in_new</span></a>
+          <div class="tags"><span class="icon i18 t-mut">hub</span>
+            <h2>Cổng đồng bộ học vụ</h2>
           </div>
         </div>
-        <div class="task">
-          <div class="between">
-            <div class="tags"><span class="tag">LMS HUST</span><span class="tag">Trọng số 15% QT</span></div>
-            <span class="muted mono"><span class="icon i16">schedule</span> Hôm nay 23:59</span>
-          </div>
-          <div class="between top">
-            <div>
-              <h3>Bài tập tuần 7: Tích phân đường & mặt (MI1121)</h3>
-              <p class="muted">Nộp file PDF tự luận giải 5 bài tập chương 4 • Đã hoàn thành 4/5 bài nháp</p>
-            </div>
-            <button class="btn nw">Nộp bài</button>
-          </div>
+        <div class="row gate">
+          <i class="sd" data-cn-dot data-state="none"></i>
+          <span>LMS Bách Khoa</span>
+          <small data-cn-text>Đang kiểm tra…</small>
+          <button class="btn" type="button" data-cn-open>Kết nối</button>
         </div>
-        <div class="task">
-          <div class="between">
-            <div class="tags"><span class="tag t-ok">FAMI Số hóa</span><span class="tag">Trọng số 20% TH</span></div>
-            <span class="muted mono"><span class="icon i16">calendar_today</span> Ngày mai, 17:00</span>
-          </div>
-          <div class="between top">
-            <div>
-              <h3>Báo cáo thực hành Mạng máy tính: Định tuyến OSPF & RIP (IT3080)</h3>
-              <p class="muted">Phòng Lab C9-302 • File cấu hình Packet Tracer + Báo cáo kết quả đo trễ</p>
-            </div>
-            <button class="btn nw">Xem mẫu</button>
-          </div>
-        </div>
+        {% for n in ['Microsoft Teams (Office 365 HUST)', 'FAMI Số hóa Bài tập & Điểm thi', 'Cổng Công tác Sinh viên
+        (iCTSV)'] %}
+        <div class="row gate"><i class="sd"></i><span>{{ n }}</span><small>Sắp hỗ trợ</small></div>
+        {% endfor %}
       </section>
 
       <section class="panel">
@@ -271,12 +238,14 @@
 <script>
   (() => {
     const btn = $('#btn-sync-all'), ic = $('#sync-icon'), lb = $('.lbl', btn);
-    btn.onclick = () => {
-      const old = lb.textContent; ic.classList.add('rot'); btn.classList.add('busy'); lb.textContent = 'Đang đồng bộ...';
-      setTimeout(() => {
-        ic.classList.remove('rot'); btn.classList.remove('busy'); lb.textContent = 'Đã cập nhật';
-        setTimeout(() => lb.textContent = old, 1500);
-      }, 900);
+    btn.onclick = async () => {
+      const old = lb.textContent;
+      ic.classList.add('rot'); btn.classList.add('busy'); lb.textContent = 'Đang đồng bộ...';
+      const r = await window.HBConnect.syncNow();
+      ic.classList.remove('rot'); btn.classList.remove('busy');
+      lb.textContent = r.text;
+      setTimeout(() => lb.textContent = old, 1800);
+      if (r.reload) setTimeout(() => location.reload(), 800);
     };
     $$('.ai-prompt').forEach(p => p.onclick = () => { const i = $('#ai-input'); i.value = p.firstElementChild.textContent.trim(); i.focus(); });
     $('#ai-submit').onclick = () => location.href = '/tro-ly-ai';

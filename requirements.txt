@@ -2,3 +2,6 @@ Flask>=3.0
 google-genai
 python-dotenv
 flask-sqlalchemy
+cryptography 
+requests 
+apscheduler

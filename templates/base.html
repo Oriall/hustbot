@@ -12,6 +12,7 @@
     rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/agent.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/connect.css') }}">
 </head>
 
 <body>
@@ -26,7 +27,10 @@
       <nav>{% for ep, ic, lb in nav %}<a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint == ep }}"><span
             class="icon">{{ ic }}</span>{{ lb }}</a>{% endfor %}</nav>
     </div>
-    <div class="sync"><span class="dot"></span>Đồng bộ LMS, Teams, FAMI, MoocAI</div>
+    <div class="sync" id="cn-side" role="button" tabindex="0" title="Quản lý kết nối LMS">
+      <span class="dot" data-cn-dot data-state="none"></span>
+      <span>LMS HUST: <span data-cn-text>đang kiểm tra…</span></span>
+    </div>
   </aside>
   <div class="wrap">
     <header class="top">
@@ -44,9 +48,10 @@
 
   {# Agent luôn hiện diện; trang Trợ lý AI đã có khung chat đầy đủ nên không cần nút nổi #}
   {% if request.endpoint != 'assistant' %}{% include '_agent.html' %}{% endif %}
-
+  {% include '_connect.html' %}
   <script>window.TASKS = {{ (tasks_json or[]) | tojson }};</script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/connect.js') }}"></script>
   {% if request.endpoint != 'assistant' %}
   <script src="{{ url_for('static', filename='js/agent.js') }}"></script>{% endif %}
   {% block scripts %}{% endblock %}

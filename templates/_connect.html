@@ -1,0 +1,61 @@
+<dialog class="cn-dlg" id="cn-dlg" aria-labelledby="cn-title">
+    <div class="cn-h">
+        <div class="tags">
+            <span class="logo sm icon">hub</span>
+            <div>
+                <h2 id="cn-title" style="margin:0">Kết nối Cổng QLĐT HUST</h2>
+                <small class="cn-st"><i class="sd" data-cn-dot data-state="none"></i><span data-cn-text>Đang kiểm
+                        tra…</span></small>
+            </div>
+        </div>
+        <button class="ibtn" id="cn-close" type="button" aria-label="Đóng"><span class="icon">close</span></button>
+    </div>
+
+    <div class="cn-body">
+        <section class="cn-step">
+            <h3><span class="cn-n">1</span>Cài extension một lần</h3>
+            <ol class="cn-ol">
+                <li>Chrome → <b>chrome://extensions</b> → bật <b>Chế độ nhà phát triển</b>.</li>
+                <li>Bấm <b>Tải tiện ích đã giải nén</b> và chọn thư mục <code>extension</code>.</li>
+            </ol>
+        </section>
+
+        <section class="cn-step">
+            <h3><span class="cn-n">2</span>Gửi thời khóa biểu</h3>
+            <ol class="cn-ol">
+                <li>Tạo mã ghép nối bên dưới (dùng được trong 10 phút).</li>
+                <li>Mở <b>qldt.hust.edu.vn → Thời khoá biểu → tab Lịch</b> (tháng hiện tại).</li>
+                <li>Bấm biểu tượng extension, dán mã rồi bấm <b>Gửi</b>.</li>
+            </ol>
+            <div class="cn-code-row">
+                <div class="cn-code" id="cn-code">••••••••</div>
+                <button class="btn" id="cn-copy" type="button" disabled><span
+                        class="icon i16">content_copy</span>Chép</button>
+            </div>
+            <div class="between">
+                <button class="btn primary" id="cn-pair" type="button"><span class="icon i16">key</span>Tạo mã ghép
+                    nối</button>
+                <small id="cn-timer" class="mono"></small>
+            </div>
+        </section>
+
+        <div class="cn-msg" id="cn-msg" role="status" hidden></div>
+
+        <p class="cn-note">
+            <span class="icon i16">lock</span>
+            Extension chỉ đọc chữ lịch học đang hiển thị khi bạn bấm Gửi. HUSTBot không nhận mật khẩu, token hay cookie
+            của qldt. Bạn có thể ngắt kết nối bất cứ lúc nào, lịch đã đồng bộ sẽ bị xóa. Lịch chỉ cập nhật khi bạn gửi
+            lại.
+        </p>
+    </div>
+
+    <div class="cn-foot">
+        <button class="btn danger" id="cn-off" type="button" hidden><span class="icon i16">link_off</span>Ngắt kết
+            nối</button>
+        <button class="btn primary" id="cn-sync" type="button" hidden><span class="icon i16">sync</span>Đồng bộ
+            ngay</button>
+    </div>
+
+    {# Phần tử ẩn để connect.js không lỗi (luồng dán token không còn dùng) #}
+    <div hidden><textarea id="cn-cookie"></textarea><button id="cn-paste" type="button"></button></div>
+</dialog>
