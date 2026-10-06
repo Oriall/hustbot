@@ -1,9 +1,18 @@
 {
   "manifest_version": 3,
   "name": "HUSTBot Connect",
-  "version": "0.4",
+  "version": "0.7",
   "description": "Gửi thời khóa biểu hiển thị trên qldt.hust.edu.vn tới HUSTBot (chỉ chạy khi bạn bấm, không lấy token).",
-  "permissions": ["activeTab", "scripting", "storage"],
-  "host_permissions": ["http://localhost:5000/*"],
-  "action": { "default_popup": "popup.html" }
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "https://student.hust.edu.vn/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
 }

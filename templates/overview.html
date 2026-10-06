@@ -16,7 +16,8 @@
   }
 </style>
 {% set wd = ['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ nhật'][now.weekday()] %}
-{% set wd = ['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ nhật'][now.weekday()] %}
+{% set s = stats %}
+{% set dr = conduct %}
 <div class="ov">
 
   <!-- HERO -->
@@ -25,21 +26,32 @@
     <div class="ov-info">
       <div class="ov-meta">
         <span class="term"><i class="sd ping-dot"></i>HỌC KỲ 2026.1</span>
-        <span>MSSV: {{ user.mssv }}</span><span class="sep">•</span><span>K66 KHMT-02</span><span
-          class="sep">•</span><span>Trường CNTT & TT (SoICT)</span>
+        <span>MSSV: {{ user.mssv }}</span><span class="sep">•</span><span>{{ user.cls }}</span>
       </div>
-      <h1 class="ov-name">Xin chào, {{ user.name }}<span class="tag ok">Xuất sắc (Top 3%)</span></h1>
+      <h1 class="ov-name">Xin chào, {{ user.name }}<span class="tag ok">CPA {{ s.cpa_rank }}</span></h1>
       <div class="ov-meta lg">
         <span><span class="icon i18 t-pri">verified</span> CPA: <b>{{ user.cpa }}</b> / 4.0</span><span
           class="sep">/</span>
-        <span><span class="icon i18">donut_large</span> Tích lũy: <b>118</b>/156 Tín chỉ</span><span
-          class="sep">/</span>
-        <span><span class="icon i18 t-ok">military_tech</span> ĐRL: <b>{{ user.drl }}</b>/100 (Tốt)</span>
-        <span class="tag hot">Thiếu 2đ TC3 đạt Xuất sắc</span>
+        <span><span class="icon i18 t-ok">military_tech</span> ĐRL: <b>{{ user.drl }}</b>/100 ({{ dr.rank }})</span>
+        {% if dr.gap > 0 and dr.weakest %}
+        <span class="tag hot">Thiếu {{ dr.gap }}đ để đạt Xuất sắc • yếu nhất {{ dr.weakest.code }}</span>
+        {% elif dr.gap == 0 %}
+        <span class="tag ok">Đã đạt mốc Xuất sắc</span>
+        {% endif %}
       </div>
       <div class="alert-bar"><span class="icon t-pri">crisis_alert</span>
-        <p><b class="t-pri">Thông báo hôm nay:</b> Có <b class="ul">1 bài kiểm tra 30 phút</b> (MS Teams 14:00) và <b>1
-            deadline</b> Bài tập Giải tích 2 trước 23:59.</p>
+        <p>
+          {% if s.overdue or s.due_today %}
+          <b class="t-pri">Thông báo hôm nay:</b>
+          {% if s.overdue %}Có <b class="ul">{{ s.overdue }} bài quá hạn</b>{% if s.due_today %} và {% endif %}{% endif
+          %}
+          {% if s.due_today %}<b>{{ s.due_today|length }} hạn nộp</b> trong hôm nay
+          ({% for t in s.due_today[:2] %}{{ t.code }} lúc {{ t.due_iso[11:16] }}{{ ', ' if not loop.last }}{% endfor
+          %}){% endif %}.
+          {% else %}
+          <b class="t-ok">Ổn rồi!</b> Hôm nay bạn không có hạn nộp nào gấp.
+          {% endif %}
+        </p>
       </div>
     </div>
     <div class="ov-actions">
@@ -58,11 +70,19 @@
 
   <!-- KPI -->
   <section class="kpis">
-    {% set kpis = [('Cần xử lý gấp','t-pri','priority_high','hot','02','','1 Giữa kỳ + 1 Quá hạn nộp',100,'pri'),
-    ('Lịch hôm nay','t-mut','event_note','','03',' ca','2 Giảng đường D9 + 1 MS Teams',33,'pri'),
-    ('Nhiệm vụ tuần','t-mut','checklist','','14',' mục','6 Teams, 4 LMS, 3 FAMI, 1 Mooc',65,'mut'),
-    ('Tiến độ nộp bài','t-ok','verified_user','okc','92%','','Hoàn thành 24/26 bài tập kỳ này',92,'ok'),
-    ('Điểm rèn luyện','t-mut','workspace_premium','','88',' / 100','Đã cộng 4 hoạt động iCTSV',88,'pri')] %}
+    {% set kpis = [
+    ('Cần xử lý gấp', 't-pri' if s.urgent else 't-mut', 'priority_high', 'hot' if s.urgent else '',
+    '%02d'|format(s.urgent), '',
+    ('%d quá hạn • %d trong 24h'|format(s.overdue, s.urgent - s.overdue)) if s.urgent else 'Không có bài gấp',
+    (100 * s.urgent // s.total) if s.total else 0, 'pri'),
+    ('Lịch hôm nay', 't-mut', 'event_note', '', '%02d'|format(s.classes), ' ca', s.next_class,
+    (100 * s.classes_done // s.classes) if s.classes else 0, 'pri'),
+    ('Nhiệm vụ tuần', 't-mut', 'checklist', '', '%02d'|format(s.week), ' mục',
+    s.week_caption or 'Không có hạn nộp trong 7 ngày', (100 * s.week // s.total) if s.total else 0, 'mut'),
+    ('Tiến độ nộp bài', 't-ok', 'verified_user', 'okc', s.progress, '%',
+    'Đã hoàn thành %d/%d bài'|format(s.done, s.done + s.total), s.progress, 'ok'),
+    ('Điểm rèn luyện', 't-mut', 'workspace_premium', '', user.drl, ' / 100', 'Xếp loại: ' ~ dr.rank, user.drl, 'pri')]
+    %}
     {% for lb, tc, ic, chip, n, unit, cap, w, bar in kpis %}
     <div class="kpi">
       <div class="between"><span class="klbl {{ tc }}">{{ lb }}</span><span class="kchip {{ chip }}"><span
@@ -83,72 +103,98 @@
     <div class="stack">
       <section class="panel">
         <div class="between sh">
-          <div class="tags"><span class="icon i18 t-mut">hub</span>
-            <h2>Cổng đồng bộ học vụ</h2>
+          <div class="tags"><i class="sd big"></i>
+            <h2>Nhiệm vụ & Bài thi cần ưu tiên</h2>
+            {% if s.urgent %}<span class="pill">{{ s.urgent }} nhiệm vụ khẩn</span>{% endif %}
+          </div>
+          <a class="link" href="{{ url_for('assignments') }}">Tất cả bài tập ({{ all_count }})<span
+              class="icon i16">arrow_forward</span></a>
+        </div>
+        {% for t in tasks %}
+        {% set hot = t.level in ('late', 'soon') %}
+        <div class="task">
+          <div class="between">
+            <div class="tags">
+              <span class="tag s-{{ t.source }}"><i class="sd"></i>{{ t.source_name }}</span>
+              {% if t.weight %}<span class="tag">Trọng số {{ t.weight }}%</span>{% endif %}
+              {% if t.level == 'late' %}<span class="tag hot">Quá hạn</span>{% endif %}
+            </div>
+            <span class="mono {{ 't-pri' if hot else 'muted' }}"><span
+                class="icon i16 {{ 'pulse' if t.level == 'soon' }}">{{ 'warning' if t.level == 'late' else 'timer' if
+                t.level == 'soon' else 'schedule' }}</span>
+              {{ t.label }} • {{ t.due }}</span>
+          </div>
+          <div class="between top">
+            <div>
+              <h3>{{ t.title }} ({{ t.code }})</h3>
+              <p class="muted">{{ t.course }}{% if t.kind %} • {{ t.kind }}{% endif %}{% if t.note %} • {{ t.note }}{%
+                endif %}</p>
+            </div>
+            <a class="btn {{ 'primary' if loop.first }} nw" href="{{ url_for('assignments') }}">Xem chi tiết<span
+                class="icon i16">arrow_forward</span></a>
           </div>
         </div>
-        <div class="row gate">
-          <i class="sd" data-cn-dot data-state="none"></i>
-          <span>LMS Bách Khoa</span>
-          <small data-cn-text>Đang kiểm tra…</small>
-          <button class="btn" type="button" data-cn-open>Kết nối</button>
+        {% else %}
+        <div class="task">
+          <h3>Bạn không còn bài tập nào chưa hoàn thành</h3>
+          <p class="muted">Nếu thầy cô vừa giao bài mới, hãy bấm "Đồng bộ tức thì" hoặc
+            <a class="t-pri" href="#" data-cn-open>kết nối LMS</a> để lấy deadline tự động.
+          </p>
         </div>
-        {% for n in ['Microsoft Teams (Office 365 HUST)', 'FAMI Số hóa Bài tập & Điểm thi', 'Cổng Công tác Sinh viên
-        (iCTSV)'] %}
-        <div class="row gate"><i class="sd"></i><span>{{ n }}</span><small>Sắp hỗ trợ</small></div>
         {% endfor %}
       </section>
 
       <section class="panel">
         <div class="between sh">
           <div class="tags"><span class="icon t-mut">schedule</span>
-            <h2>Lịch trình & Di chuyển hôm nay</h2><small>{{ wd }}, {{ now.strftime('%d/%m/%Y') }}</small>
+            <h2>Lịch trình hôm nay</h2><small>{{ wd }}, {{ now.strftime('%d/%m/%Y') }}</small>
           </div>
-          <span class="tag t-ok">Tuần 8 (Kỳ 2026.1)</span>
+          <span class="tag ok">{{ s.classes }} ca học</span>
         </div>
+        {% if timeline or events_today %}
         <div class="timeline">
-          <div class="tl done"><i class="dot2 d-mut"></i>
-            <div class="time t-mut">06:45 - 09:15<small>Tiết 1 - 3</small></div>
-            <div class="box between">
-              <div><small>IT3040 • Kỹ thuật lập trình</small>
-                <h4>Giảng đường D9-401 • TS. Trần Quang Hưng</h4>
-              </div><span class="tag">Đã học xong</span>
+          {% for c in timeline %}
+          {% set tc = 't-pri' if c.status in ('live', 'next') else ('t-mut' if c.status == 'done' else 't-ok') %}
+          <div class="tl {{ 'done' if c.status == 'done' }}">
+            {% if c.status == 'live' %}<i class="dot2 d-red ping"></i><i class="dot2 d-red"></i>
+            {% elif c.status == 'next' %}<i class="dot2 d-pri ping"></i><i class="dot2 d-pri"></i>
+            {% elif c.status == 'done' %}<i class="dot2 d-mut"></i>
+            {% else %}<i class="dot2 d-ok"></i>{% endif %}
+            <div class="time {{ tc }}">{{ c.start }} - {{ c.end }}</div>
+            <div class="box {{ 'hotbox' if c.status == 'live' }}">
+              <div class="between">
+                <small class="{{ tc }}">{{ c.code }}</small>
+                {% if c.status == 'live' %}<span class="pill">Đang diễn ra</span>
+                {% elif c.status == 'next' %}<span class="pill">Sắp diễn ra</span>
+                {% elif c.status == 'done' %}<span class="tag">Đã học xong</span>{% endif %}
+              </div>
+              <h4>{{ c.subject }}</h4>
+              <small>Phòng {{ c.room }}</small>
             </div>
           </div>
-          <div class="tl"><i class="dot2 d-pri ping"></i><i class="dot2 d-pri"></i>
-            <div class="time t-pri">12:30 - 15:05<small>Tiết 7 - 9</small></div>
-            <div class="box">
-              <div class="between"><small class="t-pri">MI1121 • Giải tích 2</small><span class="pill">Sắp diễn
-                  ra</span></div>
-              <h4>Hội trường TC-205 • PGS. Nguyễn Tiến Dũng</h4><small>Chuẩn bị bài tập số 4 để chữa tại lớp.</small>
-            </div>
-          </div>
-          <div class="tl"><i class="dot2 d-red"></i>
-            <div class="time t-pri">14:00 - 14:30<small>Trong kíp học</small></div>
-            <div class="box between hotbox">
-              <div><small class="t-pri">PH1110 • Thi giữa kỳ Online</small>
-                <h4>Phòng họp MS Teams (Nhóm 12) • Bắt buộc mở webcam</h4>
-              </div><span class="icon t-pri">videocam</span>
-            </div>
-          </div>
+          {% endfor %}
+          {% for e in events_today %}
           <div class="tl"><i class="dot2 d-ok"></i>
-            <div class="time t-ok">17:30 - 19:00<small>Ngoại khóa</small></div>
-            <div class="box between">
-              <div>
-                <div class="tags"><small class="t-ok">Hội trường C2</small><span class="tag ok">+5đ ĐRL Tiêu chí
-                    3</span></div>
-                <h4>Workshop: GenAI Architecture & Industrial Cloud Computing</h4>
-              </div><button class="btn nw">Mã QR Check-in</button>
+            <div class="time t-ok">Hôm nay<small>Hoạt động</small></div>
+            <div class="box">
+              <div class="tags"><small class="t-ok">{{ e.place or 'Đã đăng ký' }}</small>
+                <span class="tag ok">+{{ e.pts }}đ ĐRL {{ e.crit_code }}</span>
+              </div>
+              <h4>{{ e.name }}</h4>
             </div>
           </div>
+          {% endfor %}
         </div>
+        {% else %}
+        <p class="muted">Hôm nay bạn không có tiết học hay hoạt động nào.</p>
+        {% endif %}
       </section>
 
       <section class="panel wl">
         <div class="between sh">
           <div class="tags"><span class="icon i18 t-mut">equalizer</span>
-            <h2>Phân bổ áp lực học tập (Tuần 8)</h2>
-          </div><small>Tổng cộng: 28 giờ học + bài tập</small>
+            <h2>Phân bổ áp lực học tập (tuần này)</h2>
+          </div><small>{{ wl.hours_total }} giờ học • {{ wl.due_total }} hạn nộp</small>
         </div>
         <div class="wlbox">
           <svg viewBox="0 0 500 80" preserveAspectRatio="none" fill="none">
@@ -158,14 +204,17 @@
                 <stop offset="100%" stop-color="#ba141a" stop-opacity="0" />
               </linearGradient>
             </defs>
-            <path d="M 0 60 Q 40 45, 80 50 T 160 30 T 240 65 T 320 15 T 400 40 T 500 55 L 500 80 L 0 80 Z"
-              fill="url(#wg)" />
-            <path d="M 0 60 Q 40 45, 80 50 T 160 30 T 240 65 T 320 15 T 400 40 T 500 55" stroke="#ba141a"
-              stroke-width="2.5" stroke-linecap="round" />
-            <circle class="pulse" cx="320" cy="15" r="4" fill="#ffb4ab" />
+            <path d="{{ wl.area }}" fill="url(#wg)" />
+            <path d="{{ wl.path }}" stroke="#ba141a" stroke-width="2.5" stroke-linecap="round" />
+            {% if wl.peak is not none %}
+            <circle class="pulse" cx="{{ wl.px }}" cy="{{ wl.py }}" r="4" fill="#ffb4ab" />{% endif %}
           </svg>
-          <div class="days"><span>T2</span><span>T3</span><span class="t-pri"><b>T4 (Đỉnh
-                điểm)</b></span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+          <div class="days">
+            {% for d in ['T2','T3','T4','T5','T6','T7','CN'] %}
+            <span class="{{ 't-pri' if loop.index0 == wl.peak }}">{% if loop.index0 == wl.peak %}<b>{{ d }} (Đỉnh
+                điểm)</b>{% else %}{{ d }}{% endif %}</span>
+            {% endfor %}
+          </div>
         </div>
       </section>
     </div>
@@ -181,54 +230,94 @@
           </div>
           <span class="tag ok round"><i class="sd ok"></i>Sẵn sàng</span>
         </div>
-        <div class="aimsg">Chào bạn {{ user.name.split()[-1] }}! Bạn đang thiếu <b class="t-pri">2 điểm rèn luyện</b> ở
-          Tiêu chí 3 để chạm mốc Xuất sắc (90đ). Chiều nay tham gia Workshop Cloud C2 sẽ được cộng đủ ngay nhé!</div>
+        <div class="aimsg">Chào bạn {{ user.name.split()[-1] }}!
+          {% if dr.gap > 0 and dr.weakest %}
+          Bạn đang thiếu <b class="t-pri">{{ dr.gap }} điểm rèn luyện</b> để chạm mốc Xuất sắc (90đ). Tiêu chí còn thiếu
+          nhiều nhất là <b>{{ dr.weakest.code }} - {{ dr.weakest.name }}</b> ({{ dr.weakest.missing }}đ).
+          {% if dr.suggestions %}Đăng ký <b>{{ dr.suggestions[0].name }}</b> sẽ được cộng thêm +{{
+          dr.suggestions[0].gain }}đ nhé!{% endif %}
+          {% else %}
+          Điểm rèn luyện của bạn đã đạt mốc Xuất sắc. {% if s.urgent %}Giờ hãy tập trung xử lý {{ s.urgent }} nhiệm vụ
+          gấp nhé.{% endif %}
+          {% endif %}
+        </div>
         <small class="blk">Gợi ý truy vấn nhanh:</small>
-        {% for q in ['Điều kiện nhận Học bổng KKHT Loại A kỳ này?','Quy chế xin hoãn thi giữa kỳ nếu bị trùng
-        lịch?','Tính toán điểm B+ môn Giải tích 2 cần bao nhiêu thi CK?'] %}
-        <button class="ai-prompt"><span>{{ q }}</span><span class="icon i16 t-mut">arrow_forward</span></button>{%
-        endfor %}
-        <div class="aiin"><input id="ai-input" placeholder="Hỏi HUSTBot về điểm, quy chế, đề thi cũ..."><button
+        {% for q in ['Hôm nay mình cần làm gì?', 'Deadline nào gấp nhất?', 'Mình còn thiếu điểm rèn luyện ở đâu?'] %}
+        <button class="ai-prompt"><span>{{ q }}</span><span class="icon i16 t-mut">arrow_forward</span></button>
+        {% endfor %}
+        <div class="aiin"><input id="ai-input" placeholder="Hỏi HUSTBot về bài tập, lịch học, quy chế..."><button
             class="send" id="ai-submit" title="Gửi"><span class="icon i18">send</span></button></div>
       </section>
 
       <section class="panel">
         <div class="between sh">
           <div class="tags"><span class="icon t-pri">stars</span>
-            <h2>Cơ hội Học bổng phù hợp</h2>
-          </div><small>AI Khớp hồ sơ</small>
+            <h2>Hoạt động nên đăng ký</h2>
+          </div>
+          <a class="link" href="{{ url_for('activities') }}">Xem tất cả<span class="icon i16">arrow_forward</span></a>
         </div>
+        {% for e in dr.suggestions[:2] %}
         <div class="task">
           <div class="between top">
-            <div><small class="t-pri"><b>Khớp 95% Tiêu chí</b></small>
-              <h4>Học bổng Tài năng Viettel Digital 2026</h4>
-            </div><span class="tag hot nw">25.000.000 đ</span>
+            <div><small class="t-pri"><b>+{{ e.gain }}đ • {{ e.crit_code }}</b></small>
+              <h4>{{ e.name }}</h4>
+            </div><span class="tag nw">{{ e.date }}</span>
           </div>
-          <p class="muted">Điều kiện: CPA ≥ 3.2 (Bạn: 3.65 <span class="icon i15 t-ok">check</span>), TOEIC ≥ 650 (Bạn:
-            785 <span class="icon i15 t-ok">check</span>), K66 SoICT.</p>
-          <div class="between"><small>Hạn nộp: sắp đóng đơn</small><button class="btn primary">Nộp hồ sơ ngay</button>
+          <p class="muted">{{ e.crit_name }}{% if e.place %} • {{ e.place }}{% endif %}</p>
+          <div class="between"><small>{{ e.weekday }}</small>
+            <button class="btn primary" data-reg="{{ e.id }}">Đăng ký</button>
           </div>
         </div>
+        {% else %}
+        <p class="muted">Không còn hoạt động nào cần đăng ký thêm để cộng điểm.</p>
+        {% endfor %}
+      </section>
+
+      <section class="panel">
+        <div class="between sh">
+          <div class="tags"><span class="icon t-pri">stars</span>
+            <h2>Học bổng đang mở đăng ký</h2>
+          </div>
+          {% if awards_synced %}<small>Cập nhật {{ awards_synced.strftime('%d/%m %H:%M') }}</small>{% endif %}
+        </div>
+        {% for a in awards_list %}
         <div class="task">
           <div class="between top">
-            <div><small class="t-ok"><b>Khớp 100% Đạt chuẩn</b></small>
-              <h4>Học bổng Cựu sinh viên Bách Khoa K42</h4>
-            </div><span class="tag nw">15.000.000 đ</span>
+            <div>
+              <small class="{{ 't-pri' if a.days_left is not none and a.days_left <= 3 else 't-mut' }}"><b>{% if
+                  a.days_left is none %}Đang mở{% elif a.days_left == 0 %}Hết hạn hôm nay{% else %}Còn {{ a.days_left }}
+                  ngày{% endif %}</b>{% if a.value %} • {{ a.value }}{% endif %}</small>
+              <h4>{{ a.name }}</h4>
+            </div>
+            {% if a.slots %}<span class="tag nw">{{ a.slots }} suất</span>{% endif %}
           </div>
-          <p class="muted">Ưu tiên sinh viên ngành Khoa học máy tính có đề tài Nghiên cứu khoa học đã nghiệm thu.</p>
-          <div class="between"><small>Hạn nộp: theo thông báo</small><button class="btn">Xem chi tiết</button></div>
+          <p class="muted">{{ a.kind }}{% if a.partners %} • {{ a.partners }}{% endif %}</p>
+          <div class="between"><small>Hạn: {{ a.register_to }}</small>
+            <button class="btn primary" type="button"
+              data-ask="Mình có đủ điều kiện xét học bổng &quot;{{ a.name }}&quot; không?">Hỏi trợ lý</button>
+          </div>
         </div>
+        {% else %}
+        <p class="muted">Chưa có dữ liệu học bổng. Mở student.hust.edu.vn và dùng extension HUSTBot Connect để gửi.</p>
+        {% endfor %}
       </section>
 
       <section class="panel">
         <div class="between sh">
           <div class="tags"><span class="icon i18 t-mut">hub</span>
             <h2>Cổng đồng bộ học vụ</h2>
-          </div><small class="t-ok">Uptime 99.9%</small>
+          </div>
         </div>
-        {% for n, t in [('Microsoft Teams (Office 365 HUST)','2 phút trước'),('LMS Bách Khoa (lms.hust.edu.vn)','5 phút
-        trước'),('FAMI Số hóa Bài tập & Điểm thi','Đã đồng bộ'),('Cổng Công tác Sinh viên (iCTSV)','Hôm nay 08:30')] %}
-        <div class="row gate"><i class="sd ok"></i><span>{{ n }}</span><small>{{ t }}</small></div>{% endfor %}
+        <div class="row gate">
+          <i class="sd" data-cn-dot data-state="none"></i>
+          <span>Cổng QLĐT HUST</span>
+          <small data-cn-text>Đang kiểm tra…</small>
+          <button class="btn" type="button" data-cn-open>Kết nối</button>
+        </div>
+        {% for n in ['Microsoft Teams (Office 365 HUST)', 'FAMI Số hóa Bài tập & Điểm thi', 'Cổng Công tác Sinh viên
+        (iCTSV)'] %}
+        <div class="row gate"><i class="sd"></i><span>{{ n }}</span><small>Sắp hỗ trợ</small></div>
+        {% endfor %}
       </section>
     </div>
   </div>
@@ -237,6 +326,7 @@
 {% block scripts %}
 <script>
   (() => {
+    /* Đồng bộ thật với LMS (hàm syncNow nằm trong connect.js) */
     const btn = $('#btn-sync-all'), ic = $('#sync-icon'), lb = $('.lbl', btn);
     btn.onclick = async () => {
       const old = lb.textContent;
@@ -247,7 +337,30 @@
       setTimeout(() => lb.textContent = old, 1800);
       if (r.reload) setTimeout(() => location.reload(), 800);
     };
-    $$('.ai-prompt').forEach(p => p.onclick = () => { const i = $('#ai-input'); i.value = p.firstElementChild.textContent.trim(); i.focus(); });
-    $('#ai-submit').onclick = () => location.href = '/tro-ly-ai';
+
+    /* Gửi câu hỏi cho agent nổi (agent.js tự mở khung chat); không có thì chuyển sang trang Trợ lý */
+    const askAgent = (text) => {
+      const q = document.getElementById('ag-q'), send = document.getElementById('ag-send');
+      if (q && send) { q.value = text; send.click(); } else location.href = '/tro-ly-ai';
+    };
+    $$('.ai-prompt').forEach(p => p.onclick = () => askAgent(p.firstElementChild.textContent.trim()));
+    const submit = () => { const i = $('#ai-input'), v = i.value.trim(); if (v) { i.value = ''; askAgent(v); } };
+    $('#ai-submit').onclick = submit;
+    $('#ai-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+
+    /* Nút "Hỏi trợ lý" ở panel học bổng */
+    $$('[data-ask]').forEach(b => b.onclick = () => askAgent(b.dataset.ask));
+
+    /* Đăng ký hoạt động gợi ý */
+    $$('[data-reg]').forEach(b => b.onclick = async () => {
+      b.disabled = true; b.textContent = 'Đang đăng ký…';
+      try {
+        const r = await fetch('/api/events/' + b.dataset.reg + '/register', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ registered: true })
+        });
+        if (!r.ok) throw 0;
+        location.reload();
+      } catch (e) { b.disabled = false; b.textContent = 'Thử lại'; }
+    });
   })();
 </script>{% endblock %}

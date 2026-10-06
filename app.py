@@ -4,13 +4,15 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
 
-load_dotenv()
+load_dotenv()   # PHẢI chạy trước khi import connect/awards (chúng đọc TOKEN_ENC_KEY lúc import)
 
 import gemini_bot  # noqa: E402
+import connect  # noqa: E402  (phải đứng trước db.create_all())
+import awards  # noqa: E402
 from models import (SOURCES, ConductScore, Criterion, Event, EventRegistration, KBEntry,  # noqa: E402
                     ScheduleItem, Student, Task, db)
 from seed import seed_if_empty  # noqa: E402
-import connect
+
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///hustbot.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -18,7 +20,10 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-only-doi-khoa-nay-khi-de
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 db.init_app(app)
-app.register_blueprint(connect.bp)
+
+app.register_blueprint(connect.bp)      # <- dòng đang thiếu
+app.register_blueprint(awards.bp)
+PUBLIC_ENDPOINTS = {"login", "static", "connect.ext_timetable", "awards.ext_awards"}
 with app.app_context():
     db.create_all()
     seed_if_empty()
@@ -30,7 +35,6 @@ PAGES = {
     "activities": "Điểm rèn luyện & Hoạt động",
     "schedule": "Thời khóa biểu",
 }
-PUBLIC_ENDPOINTS = {"login", "static", "connect.ext_timetable"}
 
 
 # ---------------------------------------------------------------- xác thực
@@ -127,12 +131,97 @@ def inject_user():
 
 
 # ---------------------------------------------------------------- trang
+
+
+CPA_RANKS = ((3.6, "Xuất sắc"), (3.2, "Giỏi"), (2.5, "Khá"), (2.0, "Trung bình"))
+
+
+def cpa_rank(cpa):
+    return next((name for lim, name in CPA_RANKS if (cpa or 0) >= lim), "Yếu")
+
+
+def build_timeline(items, now):
+    """items: list tuple (day,start,end,subject,code,room). Gán trạng thái theo giờ hiện tại."""
+    hm, nxt, out = now.strftime("%H:%M"), False, []
+    for _, start, end, subject, code, room in items:
+        if end < hm:
+            st = "done"
+        elif start <= hm:
+            st = "live"
+        elif not nxt:
+            st, nxt = "next", True
+        else:
+            st = "later"
+        out.append(dict(start=start, end=end, subject=subject, code=code, room=room, status=st))
+    return out
+
+
+def week_workload(sid, tasks, now):
+    """Áp lực học tập T2..CN của tuần này = số giờ học + 2 điểm cho mỗi hạn nộp. Trả về đường cong SVG (viewBox 500x80)."""
+    monday = (now - timedelta(days=now.weekday())).date()
+    hours, due = [0.0] * 7, [0] * 7
+    for day, start, end, *_ in get_schedule(sid):
+        h1, m1 = map(int, start.split(":"))
+        h2, m2 = map(int, end.split(":"))
+        hours[day - 2] += max(0, (h2 * 60 + m2 - h1 * 60 - m1) / 60)
+    for t in tasks:
+        d = datetime.fromisoformat(t["due_iso"]).date()
+        if monday <= d < monday + timedelta(days=7):
+            due[(d - monday).days] += 1
+    load = [h + 2 * n for h, n in zip(hours, due)]
+    top = max(load)
+    pts = [(i * 500 / 6, 70 - 55 * (v / top if top else 0)) for i, v in enumerate(load)]
+    path = "M %.1f %.1f" % pts[0]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):      # tiếp tuyến ngang -> mượt, không vượt khung
+        mx = (x0 + x1) / 2
+        path += " C %.1f %.1f, %.1f %.1f, %.1f %.1f" % (mx, y0, mx, y1, x1, y1)
+    peak = load.index(top) if top else None
+    return dict(path=path, area=path + " L 500 80 L 0 80 Z", peak=peak,
+                px=round(pts[peak][0], 1) if peak is not None else 0,
+                py=round(pts[peak][1], 1) if peak is not None else 0,
+                hours_total=round(sum(hours), 1), due_total=sum(due))
+
+
 @app.route("/")
 def overview():
     sid, now = g.student.id, datetime.now()
-    tasks = get_tasks(sid)
-    return render_template("overview.html", tasks=tasks[:3], all_count=len(tasks),
-                           today=get_schedule(sid, weekday_vn(now)), now=now)
+    tasks = get_tasks(sid)                                   # chưa xong, sắp theo hạn
+    timeline = build_timeline(get_schedule(sid, weekday_vn(now)), now)
+    conduct = conduct_overview(sid)
+    done = done_count(sid)
+    today_iso = now.date().isoformat()
+
+    by_src = {}
+    for t in tasks:
+        if 0 <= t["mins"] < 7 * 1440:
+            by_src[t["source_name"]] = by_src.get(t["source_name"], 0) + 1
+
+    cur = next((x for x in timeline if x["status"] in ("live", "next")), None)
+    if not timeline:
+        next_class = "Hôm nay không có tiết"
+    elif cur is None:
+        next_class = "Đã học xong hôm nay"
+    elif cur["status"] == "live":
+        next_class = "Đang học: %s" % cur["subject"]
+    else:
+        next_class = "Tiếp theo: %s lúc %s" % (cur["subject"], cur["start"])
+
+    stats = dict(
+        total=len(tasks),
+        urgent=sum(1 for t in tasks if t["mins"] < 1440),
+        overdue=sum(1 for t in tasks if t["mins"] < 0),
+        due_today=[t for t in tasks if t["due_iso"][:10] == today_iso and t["mins"] >= 0],
+        classes=len(timeline), classes_done=sum(1 for x in timeline if x["status"] == "done"),
+        next_class=next_class,
+        week=sum(by_src.values()), week_caption=", ".join("%d %s" % (v, k) for k, v in by_src.items()),
+        done=done, progress=round(100 * done / (done + len(tasks))) if done + len(tasks) else 100,
+        cpa_rank=cpa_rank(g.student.cpa))
+
+    return render_template(
+        "overview.html", tasks=tasks[:3], all_count=len(tasks), timeline=timeline, stats=stats,
+        conduct=conduct, wl=week_workload(sid, tasks, now),
+        awards_list=awards.award_dicts(sid)[:3], awards_synced=awards.last_sync(sid),
+        events_today=[e for e in conduct["history"] if e["date"] == now.strftime("%d/%m/%Y")], now=now)
 
 
 @app.route("/bai-tap")
@@ -257,6 +346,14 @@ def _parse_day(s):
 
 
 def make_agent_tools(sid, actions):
+    def list_awards(only_open: bool = True) -> dict:
+        """Liệt kê học bổng/chương trình sinh viên có thể đăng ký (đã đồng bộ từ cổng sinh viên): tên, loại, giá trị,
+        số suất, hạn đăng ký, số ngày còn lại, khóa được xét. only_open=True chỉ lấy học bổng còn hạn."""
+        return {"awards": awards.award_dicts(sid, only_open)}
+
+    def get_award_detail(award_id: str) -> dict:
+        """Lấy nội dung chi tiết một học bổng (điều kiện, mức học bổng, hồ sơ cần nộp, link). Lấy award_id từ list_awards."""
+        return awards.award_detail(sid, award_id) or {"ok": False, "error": "Không tìm thấy học bổng này"}
     """Công cụ agent được gọi. `sid` được CỐ ĐỊNH trong closure từ session đăng nhập:
     AI không có tham số student_id nên không thể (kể cả bị prompt injection) đọc/ghi dữ liệu người khác."""
 
@@ -330,7 +427,7 @@ def make_agent_tools(sid, actions):
         return {"ok": True, "page": PAGES[page]}
 
     return [list_tasks, set_task_done, get_class_schedule, get_conduct_summary,
-            list_events, register_event, search_knowledge_base, navigate_to]
+            list_events, register_event, search_knowledge_base, navigate_to, list_awards, get_award_detail]
 
 
 @app.post("/api/agent")

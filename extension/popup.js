@@ -136,3 +136,89 @@ $("send").onclick = async () => {
         "Trang đọc được: " + res.log.join(" • ") + "\nServer lưu: " + byDay);
   } catch (e) { say("Không kết nối được máy chủ HUSTBot."); }
 };
+
+
+// ======================= HỌC BỔNG (student.hust.edu.vn) =======================
+chrome.storage.local.get(["uid"], (v) => { $("uid").value = v.uid || ""; });
+
+// Chạy NGAY TRONG tab student.hust.edu.vn: dùng sẵn phiên đăng nhập của bạn, token/cookie không rời trình duyệt.
+async function fetchAwards(url) {
+  try {
+    const r = await fetch(url, { credentials: "include", headers: { Accept: "application/json" } });
+    const text = await r.text();
+    let data = null;
+    try { data = JSON.parse(text); } catch (e) { }
+    return { status: r.status, data, head: text.slice(0, 120) };
+  } catch (e) {
+    return { status: 0, data: null, head: String(e) };
+  }
+}
+
+// Chạy trong tab student.hust.edu.vn: tìm userIds trong các request trang đã gọi (awards?...userIds=..., user-surveys?userId=...)
+function detectUid() {
+  for (const e of performance.getEntriesByType("resource")) {
+    const m = e.name.match(/[?&]userIds?=(\d{5,20})/);
+    if (m) return m[1];
+  }
+  return "";
+}
+
+$("sendAwards").onclick = async () => {
+  let uid; const server = $("server").value.trim().replace(/\/$/, ""), token = $("token").value.trim();
+  uid = $("uid").value.trim();
+  if (!server || !token) return say("Nhập địa chỉ HUSTBot và mã ghép nối.");
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  let host = "";
+  try { host = new URL(tab.url).hostname; } catch (e) { }
+  if (host !== "qldt.hust.edu.vn" && host !== "student.hust.edu.vn") return say("Hãy mở trang qldt.hust.edu.vn (đã đăng nhập) rồi bấm lại.");
+
+  if (!/^\d{5,20}$/.test(uid)) {
+    try {
+      const r = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: detectUid });
+      uid = (r[0].result || "").trim();
+    } catch (e) { }
+    if (uid) $("uid").value = uid;
+  }
+  if (!/^\d{5,20}$/.test(uid)) {
+    return say("Chưa tự tìm được userIds. Hãy tải lại trang student.hust.edu.vn rồi bấm lại, hoặc nhập tay (F12 → Network → request awards → số sau userIds=).");
+  }
+  chrome.storage.local.set({ server, uid });
+
+  say("Đang lấy danh sách học bổng…");
+  const url = "https://student.hust.edu.vn/api/v1/awards?includeUnit=true&type=get_by_time&userIds=" + encodeURIComponent(uid);
+  let res;
+  try {
+    const r = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: fetchAwards, args: [url] });
+    res = r[0].result;
+  } catch (e) { return say("Không đọc được trang này."); }
+  if (res && res.status === 0) {          // trình duyệt chặn gọi chéo trang: thử gọi từ chính extension
+    try {
+      const r2 = await fetch(url, { credentials: "include", headers: { Accept: "application/json" } });
+      const t2 = await r2.text();
+      let d2 = null;
+      try { d2 = JSON.parse(t2); } catch (e) { }
+      res = { status: r2.status, data: d2, head: t2.slice(0, 120) };
+    } catch (e) { }
+  }
+  if (!res || res.status !== 200 || !res.data) {
+    return say("API học bổng trả về HTTP " + (res ? res.status : "?") + (res && res.status === 0 ? " (bị chặn hoặc lỗi mạng: " + res.head + ")" : "") + (res && res.status === 200 ? " nhưng không phải JSON" : "") +
+               ".\nNếu là 401/403, API cần thêm header mà trang tự gắn; hãy báo lại để chỉnh.");
+  }
+  if (res.data.payload && Object.keys(res.data).length === 1) return say("API trả về dữ liệu mã hóa (payload), cần cách khác.");
+
+  say("Đang gửi…");
+  try {
+    const r = await fetch(server + "/api/ext/awards", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
+      body: JSON.stringify({ response: res.data }),
+    });
+    const d = await r.json();
+    if (!r.ok || !d.ok) return say(d.error || "Lỗi " + r.status);
+    $("token").value = "";
+    const tot = res.data && typeof res.data.total === "number" ? res.data.total : null;
+    say("Đã cập nhật " + d.synced + " học bổng (" + d.open + " đang mở đăng ký)." +
+        (tot !== null && tot !== d.synced ? "\nLưu ý: cổng báo tổng " + tot + " nhưng chỉ nhận được " + d.synced + " (có thể có phân trang)." : ""));
+  } catch (e) { say("Không kết nối được máy chủ HUSTBot."); }
+};

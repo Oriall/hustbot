@@ -4,12 +4,16 @@
   body { width: 330px; font: 13px sans-serif; padding: 10px; }
   input, button { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 7px; }
   #msg { margin-top: 6px; min-height: 18px; white-space: pre-line; font-size: 12px; line-height: 17px; }
+  hr { margin: 10px 0 4px; border: 0; border-top: 1px solid #ddd; }
   small { color: #555; display: block; margin-top: 6px; line-height: 16px; }
 </style>
 <b>HUSTBot Connect</b>
 <input id="server" placeholder="Địa chỉ HUSTBot, vd http://localhost:5000">
 <input id="token" placeholder="Mã ghép nối (tạo trên web HUSTBot)" autocomplete="off">
 <button id="send">Gửi thời khóa biểu tuần này</button>
+<hr>
+<input id="uid" placeholder="userIds (để trống: tự tìm trên trang)" inputmode="numeric" autocomplete="off">
+<button id="sendAwards">Gửi học bổng (mở tab qldt.hust.edu.vn)</button>
 <div id="msg"></div>
 <small>Mở trang <b>Thời khoá biểu → tab Lịch</b> của qldt.hust.edu.vn (tháng hiện tại) rồi bấm gửi.
 Extension chỉ đọc chữ lịch học trên trang đang mở, không lấy token hay cookie.</small>
