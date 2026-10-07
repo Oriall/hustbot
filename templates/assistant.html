@@ -1,432 +1,307 @@
 {% extends "base.html" %}{% block content %}
-<div class="as">
+<div class="ob">
 
-  <!-- STATUS BAR -->
-  <div class="as-bar">
-    <div class="as-bl">
-      <span class="as-live"><span class="sd ok pulse"></span>Trợ lý AI Bách Khoa</span>
-      <span class="dr-pill ok">RAG Hybrid Sync: Online</span>
-      <span class="as-hide t-mut as-inl"><span class="icon i16 t-ok">database</span>Vector Store: 18,420 chunks (Quy chế
-        HUST 2024 &amp; Khảo thí)</span>
-    </div>
-    <div class="as-bl">
-      <span class="as-inl mono t-mut"><span class="icon i18 t-pri">psychology</span>Model: <b
-          class="t-tx">HUST-Copilot-v2.4-DeepSeek-8B</b></span>
-      <span class="as-vr"></span>
-      <button class="as-link"><span class="icon i16">tune</span>Tham số</button>
+  <!-- HEADER -->
+  <div class="ob-head">
+    <div class="dr-crumb">HUST HUB <i>/</i> <b>Trợ lý AI Bách Khoa</b> <i>/</i> <span class="t-tx">Chế độ Trực quan 3D &amp; Giọng nói</span></div>
+    <div class="ob-pills">
+      <span class="ob-pill t-ok"><span class="sd ok pulse"></span>Đang nghe &amp; phản hồi trực tiếp</span>
+      <span class="ob-pill"><span class="icon i14 t-ok">lock</span>SSO SIS Đã kết nối</span>
+      <span class="ob-pill ob-hide"><span class="icon i14">shield</span>Bảo mật SSL 256-bit</span>
     </div>
   </div>
 
-  <div class="as-grid">
-
-    <!-- CỘT 1 -->
-    <div class="as-side">
-      <button class="dr-btn pri as-new" id="as-new"><span class="icon">add</span>Cuộc trò chuyện
-        mới<kbd>Ctrl+N</kbd></button>
-
-      <div class="as-scroll">
-        <div class="as-blk">
-          <div class="as-lh"><span>Lịch sử hội thoại</span><i>4 gần đây</i></div>
-          <div class="as-hist on">
-            <div class="between"><span class="as-tg t-pri"><span class="icon i14">calculate</span>Học phần
-                MI1121</span><small>Vừa xong</small></div>
-            <b>Tính điểm thi cuối kỳ Giải tích 2 để đạt điểm A</b>
-            <small class="clamp">Công thức: 0.3*GK + 0.2*BT + 0.5*CK</small>
-          </div>
-          <div class="as-hist">
-            <div class="between"><span class="as-tg t-ok"><span class="icon i14">history_edu</span>Khảo
-                thí</span><small>10:45</small></div>
-            <b>Lưu ý phòng thi trắc nghiệm Vật lý đại cương 1</b>
-            <small class="clamp">Checklist MS Teams &amp; Máy tính bỏ túi</small>
-          </div>
-          <div class="as-hist">
-            <div class="between"><span class="as-tg"><span class="icon i14">workspace_premium</span>Học bổng Doanh
-                nghiệp</span><small>Hôm qua</small></div>
-            <b>Hướng dẫn đăng ký xét học bổng Viettel 2024</b>
-            <small class="clamp">Tiêu chuẩn CPA ≥ 3.2, ĐRL ≥ 80</small>
-          </div>
-          <div class="as-hist">
-            <div class="between"><span class="as-tg"><span class="icon i14">account_balance</span>Phòng Đào
-                tạo</span><small>03/10</small></div>
-            <b>Thủ tục miễn giảm học phí diện chính sách</b>
-            <small class="clamp">Mẫu 02/HUST nộp tại C1-102</small>
-          </div>
-        </div>
-
-        <div class="as-blk">
-          <div class="as-lh"><span>Tri thức nạp sẵn (Fine-tuned)</span></div>
-          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-pri">menu_book</span>Quy chế Đào tạo
-              tín chỉ 2024</span><small>V.2.1</small></a>
-          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-ok">folder_zip</span>Cẩm nang môn &amp;
-              Đề thi mẫu</span><small>2.4k files</small></a>
-          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-pri">verified</span>Tiêu chí ĐRL &amp;
-              iCTSV HUST</span><small>5 Mục</small></a>
-          <a class="as-kb" href="#"><span class="icon-wrap as-inl"><span class="icon i18 t-mut">map</span>Bản đồ Giảng
-              đường D, B, C1</span><small>Interactive</small></a>
-          <a class="as-kb" href="#"><span class="as-inl"><span class="icon i18 t-mut">contact_support</span>Thủ tục hành
-              chính một cửa</span><small>Quy trình</small></a>
-        </div>
-
-        <div class="as-card as-conn">
-          <div class="between"><b>QLĐT Connector</b><small class="t-ok">Đã xác thực</small></div>
-          <small>Dữ liệu kết quả học tập &amp; thời khóa biểu đồng bộ lần cuối lúc 08:30 hôm nay.</small>
-        </div>
-      </div>
+  <!-- MODE BAR -->
+  <div class="ob-modes">
+    <div class="ob-tabs">
+      <button class="on" id="ob-m-orb"><span class="icon i18">motion_photos_on</span>Chế độ Hội thoại 3D Orb<em>Live</em></button>
+      <button id="ob-m-txt"><span class="icon i18">forum</span>Chat văn bản truyền thống</button>
     </div>
+    <div class="ob-tabs">
+      <span class="ob-pill"><span class="icon i16 t-pri">token</span>Token còn: <b class="t-tx">84.200 / 100K</b></span>
+      <button class="ibtn" title="Cài đặt giọng đọc &amp; AI"><span class="icon i18">tune</span></button>
+    </div>
+  </div>
 
-    <!-- CỘT 2: CHAT -->
-    <div class="as-chat">
-      <div class="as-ch">
-        <div class="as-inl">
-          <span class="as-ic"><span class="icon t-pri">neurology</span></span>
-          <div>
-            <div class="as-inl"><b>HUSTBot Copilot</b><span class="dr-pill solid">v2.4 Pro</span></div>
-            <small class="t-mut as-blk1">Ngữ cảnh: {{ user.name }} ({{ user.mssv }}) • {{ user.cls }} • Kỳ
-              2024.1</small>
-          </div>
-        </div>
-        <div class="as-inl">
-          <button class="ibtn" title="Làm mới ngữ cảnh"><span class="icon i18">restart_alt</span></button>
-          <button class="ibtn" title="Chia sẻ đoạn trích quy chế"><span class="icon i18">share</span></button>
-          <button class="ibtn" title="Cài đặt nhiệt độ model"><span class="icon i18">more_vert</span></button>
-        </div>
-      </div>
+  <!-- STAGE -->
+  <div class="ob-stage" id="ob-stage" data-state="idle">
+    <i class="ob-glow t"></i><i class="ob-glow b"></i>
 
-      <div class="as-stream" id="as-stream">
+    <div class="ob-grid">
 
-        <!-- User 1 (demo) -->
-        <div class="as-turn u">
-          <div class="as-bub u">
-            <p>Môn <b class="t-pri">Giải tích 2 (MI1121)</b> của mình hiện tại điểm QT đang là <b class="ul">7.5</b> (hệ
-              số 0.3), bài tập tuần <b class="ul">8.5</b> (hệ số 0.2). Mình cần đạt bao nhiêu điểm Cuối kỳ để được điểm
-              <b class="t-ok">A</b> hoặc <b class="t-ok">A+</b>?</p>
-            <div class="as-ts"><small>09:14 AM</small><span class="icon i14 t-ok">done_all</span></div>
-          </div>
-          <span class="as-av">A</span>
-        </div>
-
-        <!-- Bot 1 (demo) -->
-        <div class="as-turn">
-          <span class="as-bot"><span class="icon">school</span></span>
-          <div class="as-bub b">
-            <div class="as-cite">
-              <span class="as-inl t-pri"><span class="icon i16">menu_book</span>Căn cứ Quy chế Đào tạo tín chỉ HUST 2024
-                (Điều 23 - Thang điểm 4 &amp; Chữ)</span>
-              <small>Độ tin cậy: 99.8%</small>
-            </div>
-            <p>Chào bạn <b>{{ user.name }}</b>! Với đề cương chi tiết học phần <b>Giải tích 2 (MI1121)</b>, công thức
-              tính điểm tổng kết học phần (Hệ 10) quy định như sau:</p>
-            <div class="as-formula">
-              <div class="t-ok as-inl"><span class="icon i16">functions</span><b>Điểm HP = (0.3 × Điểm QT) + (0.2 × Điểm
-                  BT) + (0.5 × Điểm CK)</b></div>
-              <small>Thay số: Điểm HP = (0.3 × 7.5) + (0.2 × 8.5) + (0.5 × CK) = 2.25 + 1.70 + 0.5 × CK = <b
-                  class="t-tx">3.95 + 0.5 × CK</b></small>
-            </div>
-            <div class="as-scx">
-              <table class="as-tbl">
-                <thead>
-                  <tr>
-                    <th>Mục tiêu</th>
-                    <th>Thang chữ HUST</th>
-                    <th>Yêu cầu HP (Hệ 10)</th>
-                    <th>Điểm CK cần</th>
-                    <th>Độ khả thi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="t-ok"><b>Điểm A</b></td>
-                    <td class="mono">A (4.0 - Xuất sắc)</td>
-                    <td class="mono">≥ 8.5</td>
-                    <td class="mono t-pri"><b>≥ 9.1 (Làm tròn: 9.0 - 9.1)</b></td>
-                    <td><span class="dr-pill ok">Khả thi cao</span></td>
-                  </tr>
-                  <tr>
-                    <td class="t-pri"><b>Điểm A+</b></td>
-                    <td class="mono">A+ (4.0 - Tối đa)</td>
-                    <td class="mono">≥ 9.0</td>
-                    <td class="mono t-pri"><b>≥ 10.0 (Tuyệt đối)</b></td>
-                    <td><span class="dr-pill hot">Thử thách lớn</span></td>
-                  </tr>
-                  <tr>
-                    <td><b>Điểm B+</b></td>
-                    <td class="mono">B+ (3.5 - Giỏi)</td>
-                    <td class="mono">≥ 8.0</td>
-                    <td class="mono"><b>≥ 8.1</b></td>
-                    <td><span class="dr-pill mut">Rất an toàn</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="as-adv">
-              <b class="as-inl"><span class="icon i18 t-ok">lightbulb</span>Chiến lược trọng tâm ôn thi để bứt phá lên A
-                (≥ 9.1 điểm):</b>
-              <ul>
-                <li><b>Tích phân bội 3:</b> Chuyển sang tọa độ trụ &amp; cầu (thường chiếm 2.5 - 3.0 điểm).</li>
-                <li><b>Tích phân mặt loại 2 &amp; Công thức Gauss-Ostrogradsky:</b> Nắm chắc kỹ thuật chọn pháp vector
-                  hướng ra ngoài.</li>
-                <li><b>Phương trình vi phân cấp 2:</b> Phương pháp hệ số bất định và biến thiên hằng số Lagrange.</li>
-              </ul>
-              <button class="dr-btn sm"><span class="icon t-pri">download</span>Tải Bộ đề thi GT2 K63-K65 có lời giải
-                (PDF)</button>
-            </div>
-            <div class="as-fb">
-              <span><button class="ibtn"><span class="icon i16">thumb_up</span></button><button class="ibtn"><span
-                    class="icon i16">thumb_down</span></button><button class="ibtn"><span
-                    class="icon i16">content_copy</span></button></span>
-              <small>09:14 AM • 1,240 tokens</small>
-            </div>
-          </div>
-        </div>
-
-        <!-- User 2 (demo) -->
-        <div class="as-turn u">
-          <div class="as-bub u">
-            <p>Chiều nay mình có thi giữa kỳ <b class="t-pri">Vật lý đại cương 1 (PH1110)</b> trên MS Teams lúc 14:00,
-              bot tóm tắt nhanh quy chế phòng thi và lưu ý quan trọng giúp mình với!</p>
-            <div class="as-ts"><small>10:45 AM</small><span class="icon i14 t-ok">done_all</span></div>
-          </div>
-          <span class="as-av">A</span>
-        </div>
-
-        <!-- Bot 2 (demo) -->
-        <div class="as-turn">
-          <span class="as-bot"><span class="icon">school</span></span>
-          <div class="as-bub b">
-            <div class="as-cite">
-              <span class="as-inl t-ok"><span class="icon i16">emergency</span>Thông báo Khảo thí Viện Vật lý kỹ thuật •
-                Kỳ 2024.1</span>
-              <small class="t-pri"><b>Bắt đầu sau 3h 15m</b></small>
-            </div>
-            <p>Dưới đây là <b>Checklist sinh tử</b> cho ca thi trắc nghiệm trực tuyến PH1110 chiều nay:</p>
-            <div class="as-chk">
-              <div><span class="icon t-ok">videocam</span>
-                <div><b>Webcam &amp; Góc quay</b><small>Bật camera 100% thời gian. Góc quay thấy rõ mặt, 2 tay và mặt
-                    bàn thi.</small></div>
-              </div>
-              <div><span class="icon t-pri">badge</span>
-                <div><b>Đặt tên MS Teams</b><small>Đổi format: <b class="t-tx">{{ user.mssv }} - {{ user.name }}</b>.
-                    Chuẩn bị Thẻ SV / CCCD đối chiếu.</small></div>
-              </div>
-              <div><span class="icon t-ok">calculate</span>
-                <div><b>Máy tính bỏ túi</b><small>Được phép: Casio fx-580VNX, 570VN Plus, Vinacal. Không có chức năng
-                    lưu văn bản/Wifi.</small></div>
-              </div>
-              <div><span class="icon t-pri">schedule</span>
-                <div><b>Thời gian có mặt</b><small>Vào kênh MS Teams trước <b class="t-tx">13:50</b> (10 phút trước giờ
-                    phát đề). Muộn quá 5 phút bị hủy tư cách.</small></div>
-              </div>
-            </div>
-            <div class="as-adv row">
-              <span class="as-inl"><span class="icon t-ok">bolt</span><span>Đã sẵn sàng: <b>Tóm tắt 1 trang công thức Cơ
-                    - Nhiệt PH1110</b></span></span>
-              <button class="dr-btn sm as-see">Xem ngay</button>
-            </div>
-            <div class="as-fb">
-              <span><button class="ibtn"><span class="icon i16">thumb_up</span></button><button class="ibtn"><span
-                    class="icon i16">thumb_down</span></button><button class="ibtn"><span
-                    class="icon i16">content_copy</span></button></span>
-              <small>10:45 AM • 890 tokens</small>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="as-pills">
-        <small class="as-inl"><span class="icon i14">auto_awesome</span>Gợi ý:</small>
-        <button class="chip">Quy chế bảo lưu môn học</button>
-        <button class="chip">Tính điểm rèn luyện tiêu chí 3</button>
-        <button class="chip">Học bổng KKHT xét theo tiêu chí nào?</button>
-        <button class="chip">Điều kiện miễn Tiếng Anh bằng TOEIC</button>
-      </div>
-
-      <div class="as-inp">
-        <div class="as-box">
-          <textarea id="as-q" rows="2"
-            placeholder="Hỏi HUSTBot về điểm học phần, quy chế khảo thí, bài tập lập trình hoặc tra cứu tài liệu..."></textarea>
+      <!-- TRÁI -->
+      <div class="ob-wing">
+        <div class="ob-card hi">
           <div class="between">
-            <div class="as-inl">
-              <button class="ibtn" title="Đính kèm file đề thi PDF / Ảnh bài tập"><span
-                  class="icon i18">attach_file</span></button>
-              <button class="ibtn" title="Chụp ảnh đề thi hoặc biểu đồ"><span
-                  class="icon i18">photo_camera</span></button>
-              <button class="ibtn t-ok as-inl" title="Chế độ phân tích chuyên sâu"><span
-                  class="icon i18">psychology_alt</span><span class="mono">CoT Reasoning</span></button>
-            </div>
-            <div class="as-inl">
-              <small class="as-hide">Enter để gửi • Shift+Enter xuống dòng</small>
-              <button class="as-send" id="as-send" title="Gửi"><span class="icon">send</span></button>
-            </div>
+            <span class="ob-lbl t-pri"><span class="sd big ping"></span>Âm thanh sinh viên</span>
+            <small class="mono" id="ob-qtime">--:--:--</small>
+          </div>
+          <span class="ob-tagid mono">MSSV: {{ user.mssv }} • {{ user.cls }}</span>
+          <p id="ob-q-show"><span class="t-pri"><b>🎙️ Bạn vừa hỏi:</b></span> <span id="ob-q-text" class="t-mut">Nhấn mic hoặc gõ câu hỏi bên dưới để bắt đầu…</span></p>
+          <div class="between ob-foot mono"><span id="ob-mic-name">Mic: Mặc định</span><span class="t-ok" id="ob-mic-q">Sẵn sàng</span></div>
+        </div>
+
+        <div class="ob-card">
+          <div class="between">
+            <span class="ob-lbl t-ok"><span class="icon i16">neurology</span>Phân tích lập luận (CoT)</span>
+            <small class="ob-chip3 mono">3 Bước</small>
+          </div>
+          <div class="ob-cot">
+            <div id="cot1"><span class="icon i16 t-mut">radio_button_unchecked</span><span>Nhận diện câu hỏi</span></div>
+            <div id="cot2"><span class="icon i16 t-mut">radio_button_unchecked</span><span>Truy cứu tri thức (RAG)</span></div>
+            <div id="cot3" class="last"><span class="icon i16 t-mut">radio_button_unchecked</span><span>Tổng hợp câu trả lời</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GIỮA: ORB -->
+      <div class="ob-center">
+        <div class="ob-rings"><i></i><i></i><i></i></div>
+
+        <div class="ob-status">
+          <span class="ob-state"><span class="sd big ping"></span><span id="ob-state-txt">SẴN SÀNG LẮNG NGHE</span></span>
+          <div class="ob-eq"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="ob-orb" id="ob-orb"></div>
+
+        <div class="ob-tele">
+          <span class="ob-pill"><span class="icon i14 t-ok">bolt</span>Độ trễ: <b class="t-ok" id="ob-lat">--</b> • HUST-Copilot v2.4</span>
+          <span class="ob-pill"><span class="icon i14 t-pri">record_voice_over</span>Giọng: <b class="t-tx" id="ob-voice-state">Bật</b> • vi-VN</span>
+        </div>
+      </div>
+
+      <!-- PHẢI -->
+      <div class="ob-wing">
+        <div class="ob-card hi">
+          <div class="between">
+            <span class="ob-lbl t-pri"><span class="icon i16 pulse">forum</span>Phụ đề thời gian thực</span>
+            <button class="ibtn" id="ob-replay" title="Nghe lại"><span class="icon i18">volume_up</span></button>
+          </div>
+          <div class="ob-sub as-md" id="ob-sub">
+            <p>Xin chào {{ user.name }}! Mình là HUSTBot. Bạn muốn hỏi về điểm học phần, quy chế, lịch thi hay học bổng?</p>
+          </div>
+        </div>
+
+        <div class="ob-card">
+          <div class="between">
+            <span class="ob-lbl t-tx"><span class="icon t-ok">fact_check</span>Căn cứ &amp; hành động</span>
+          </div>
+          <div class="ob-src" id="ob-src"><span class="icon i16 t-mut">menu_book</span><span>Chưa có nguồn trích dẫn.</span></div>
+          <div class="ob-acts">
+            <button class="dr-btn pri" id="ob-copy"><span class="icon">content_copy</span>Sao chép câu trả lời</button>
+            <button class="dr-btn" id="ob-new"><span class="icon">restart_alt</span>Cuộc trò chuyện mới</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- CỘT 3 -->
-    <div class="as-side r">
-      <div class="as-card">
-        <div class="as-ph"><span class="as-inl"><span class="icon i16 t-pri">person_pin</span>Hồ sơ học vụ thời gian
-            thực</span><span class="sd ok"></span></div>
-        <div class="as-inl" style="gap:12px">
-          <span class="as-cls">{{ user.cls[1:3] }}</span>
-          <div><b class="as-blk1">{{ user.name }}</b><small>MSSV: {{ user.mssv }} • Viện CNTT&amp;TT</small></div>
-        </div>
-        <div class="as-two">
-          <div class="as-mini"><small>CPA Tích lũy</small><b class="t-ok">{{ user.cpa }}<small>/4.0</small></b><small
-              class="t-ok mono">Xuất sắc</small></div>
-          <div class="as-mini"><small>Điểm rèn luyện</small><b class="t-pri">{{ user.drl }}<small>/100</small></b><small
-              class="t-pri mono">Tốt (Loại A)</small></div>
-        </div>
-        <div class="as-mini row"><small>Tín chỉ học kỳ này</small><b class="as-s">19 TC (7 môn)</b></div>
+    <!-- DƯỚI -->
+    <div class="ob-bottom">
+      <div class="ob-sugs">
+        <button class="chip"><span class="icon i14 t-pri">auto_fix_high</span>Quy chế bảo lưu môn học</button>
+        <button class="chip"><span class="icon i14 t-ok">schedule</span>Lịch thi tuần này của mình</button>
+        <button class="chip"><span class="icon i14">calculate</span>Cách tính CPA sau khi hoãn thi</button>
+        <button class="chip"><span class="icon i14">workspace_premium</span>Học bổng KKHT xét theo tiêu chí nào?</button>
       </div>
 
-      <div class="as-card">
-        <div class="as-ph"><span class="as-inl"><span class="icon i16 t-ok">fact_check</span>Căn cứ tri thức trích dẫn
-            (RAG)</span><small>3 nguồn</small></div>
-        <div class="as-mini">
-          <div class="between"><b class="t-pri as-s mono">Sổ tay Sinh viên HUST 2024</b><small>Điều 23.3</small></div>
-          <small>Quy định quy đổi điểm số học phần từ thang điểm 10 sang thang điểm 4 và chữ A, B+, B, C+, C, D+, D,
-            F.</small>
+      <div class="ob-cmd">
+        <button class="ob-mic" id="ob-mic" title="Bật/Tắt Microphone"><i></i><span class="icon">mic</span></button>
+        <div class="ob-in">
+          <input id="ob-q" type="text" autocomplete="off" placeholder="Hỏi hoặc nói chuyện với HUSTBot AI..."/>
+          <button class="ibtn" id="ob-tts" title="Tắt / Bật tiếng trợ lý"><span class="icon i18">volume_up</span></button>
         </div>
-        <div class="as-mini">
-          <div class="between"><b class="t-ok as-s mono">Quy định Khảo thí &amp; ĐBCL</b><small>Mục 4.2</small></div>
-          <small>Danh mục thiết bị và thiết bị tính toán điện tử cá nhân được chấp thuận trong kỳ thi trắc nghiệm khách
-            quan.</small>
-        </div>
-        <div class="as-mini">
-          <div class="between"><b class="as-s mono">Syllabus PH1110 - Viện VLKT</b><small>Kỳ 2024.1</small></div>
-          <small>Cấu trúc điểm thi giữa kỳ chiếm 30% tổng điểm học phần, gồm 20 câu hỏi trắc nghiệm trong 45
-            phút.</small>
-        </div>
-      </div>
-
-      <div class="as-card grow1">
-        <div class="as-ph"><span class="as-inl"><span class="icon i16 t-mut">local_library</span>Tài liệu học tập đề
-            xuất</span></div>
-        <div class="as-doc"><span class="as-inl"><span class="icon t-pri">picture_as_pdf</span><span><b>Sổ tay công thức
-                Vật lý 1</b><small>PDF • 14 trang • Viện VLKT</small></span></span><span
-            class="icon i16 t-mut">open_in_new</span></div>
-        <div class="as-doc"><span class="as-inl"><span class="icon t-ok">quiz</span><span><b>500 câu trắc nghiệm
-                KTLT</b><small>Interactive Quiz • IT3011</small></span></span><span
-            class="icon i16 t-mut">open_in_new</span></div>
-        <div class="as-doc"><span class="as-inl"><span class="icon t-mut">description</span><span><b>Mẫu đơn xin phúc
-                khảo thi</b><small>DOCX • Phòng Đào tạo HUST</small></span></span><span
-            class="icon i16 t-mut">open_in_new</span></div>
-        <div class="as-tele mono"><span class="as-inl"><span class="sd ok" style="margin:0"></span>Latency:
-            0.38s</span><span>Precision: 99.2%</span><span class="t-ok">SSL Encrypted</span></div>
+        <button class="ob-go" id="ob-send" title="Gửi"><span class="icon">arrow_upward</span></button>
       </div>
     </div>
-
   </div>
-</div>{% endblock %}
+</div>
+{% endblock %}
 
 {% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
 <script>
-  (function () {
-    var stream = document.getElementById('as-stream'),
-      q = document.getElementById('as-q'),
-      send = document.getElementById('as-send'),
-      history = [],      // [{role:'user'|'model', text:'...'}]
-      busy = false;
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $('ob-stage'), q = $('ob-q'), send = $('ob-send'), mic = $('ob-mic'),
+      history = [], busy = false, lastAns = '', voiceOn = true, listening = false;
 
-    function time() { var d = new Date(); return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
-    function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; return e; }
-    function down() { stream.scrollTop = stream.scrollHeight; }
+  /* ---------- tiện ích ---------- */
+  function pad(n) { return ('0' + n).slice(-2); }
+  function clock() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function inline(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
+  function md(text) {
+    var out = [], list = null;
+    function close() { if (list) { out.push('</' + list + '>'); list = null; } }
+    text.split('\n').forEach(function (ln) {
+      var ul = ln.match(/^\s*[-*•]\s+(.*)/), ol = ln.match(/^\s*\d+[.)]\s+(.*)/);
+      if (ul || ol) {
+        var t = ul ? 'ul' : 'ol';
+        if (list !== t) { close(); out.push('<' + t + '>'); list = t; }
+        out.push('<li>' + inline((ul || ol)[1]) + '</li>');
+      } else if (ln.trim() === '') close();
+      else { close(); out.push('<p>' + inline(ln) + '</p>'); }
+    });
+    close(); return out.join('');
+  }
+  function plain(t) { return t.replace(/[*`#]/g, ''); }
 
-    // Markdown nhẹ: escape HTML trước rồi mới thêm thẻ => an toàn XSS
-    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-    function inline(s) {
-      return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`([^`]+)`/g, '<code>$1</code>');
-    }
-    function md(text) {
-      var out = [], list = null, lines = text.split('\n');
-      function close() { if (list) { out.push('</' + list + '>'); list = null; } }
-      lines.forEach(function (ln) {
-        var ul = ln.match(/^\s*[-*•]\s+(.*)/), ol = ln.match(/^\s*\d+[.)]\s+(.*)/);
-        if (ul || ol) {
-          var t = ul ? 'ul' : 'ol';
-          if (list !== t) { close(); out.push('<' + t + '>'); list = t; }
-          out.push('<li>' + inline((ul || ol)[1]) + '</li>');
-        } else if (ln.trim() === '') { close(); }
-        else { close(); out.push('<p>' + inline(ln) + '</p>'); }
-      });
-      close();
-      return out.join('');
-    }
+  /* ---------- trạng thái ---------- */
+  var LABEL = { idle: 'SẴN SÀNG LẮNG NGHE', listening: 'ĐANG NGHE BẠN NÓI...', thinking: 'ĐANG PHÂN TÍCH & TRUY CỨU...', speaking: 'ĐANG TRẢ LỜI...' };
+  function setState(s) { stage.dataset.state = s; $('ob-state-txt').textContent = LABEL[s]; }
 
-    function userMsg(text) {
-      var t = el('div', 'as-turn u'), b = el('div', 'as-bub u'), p = el('p', '', text), ts = el('div', 'as-ts');
-      ts.appendChild(el('small', '', time()));
-      ts.appendChild(el('span', 'icon i14 t-ok', 'done_all'));
-      b.appendChild(p); b.appendChild(ts);
-      t.appendChild(b); t.appendChild(el('span', 'as-av', 'A'));
-      stream.appendChild(t); down();
-    }
+  function cot(i, st) { // st: todo | run | done
+    var row = $('cot' + i), ic = row.querySelector('.icon');
+    row.className = (i === 3 ? 'last ' : '') + st;
+    ic.textContent = st === 'done' ? 'check_circle' : st === 'run' ? 'progress_activity' : 'radio_button_unchecked';
+    ic.className = 'icon i16 ' + (st === 'done' ? 't-ok' : st === 'run' ? 't-pri spin' : 't-mut');
+  }
+  function cotReset() { cot(1, 'todo'); cot(2, 'todo'); cot(3, 'todo'); }
 
-    function botMsg(text, src, typing) {
-      var t = el('div', 'as-turn'), bot = el('span', 'as-bot'), b = el('div', 'as-bub b');
-      bot.appendChild(el('span', 'icon', 'school'));
-      if (src) {
-        var c = el('div', 'as-cite'), s = el('span', 'as-inl t-pri');
-        s.appendChild(el('span', 'icon i16', 'menu_book')); s.appendChild(document.createTextNode(src));
-        c.appendChild(s); b.appendChild(c);
-      }
-      if (typing) {
-        var d = el('div', 'as-typing'); d.innerHTML = '<i></i><i></i><i></i>'; b.appendChild(d);
-      } else {
-        var body = el('div', 'as-md'); body.innerHTML = md(text); b.appendChild(body);
-        var fb = el('div', 'as-fb'), acts = el('span');
-        var cp = el('button', 'ibtn'); cp.title = 'Sao chép';
-        cp.appendChild(el('span', 'icon i16', 'content_copy'));
-        cp.addEventListener('click', function () { navigator.clipboard && navigator.clipboard.writeText(text); });
-        acts.appendChild(cp); fb.appendChild(acts); fb.appendChild(el('small', '', time()));
-        b.appendChild(fb);
-      }
-      t.appendChild(bot); t.appendChild(b);
-      stream.appendChild(t); down(); return t;
-    }
+  /* ---------- giọng nói ---------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null;
+  if (SR) {
+    rec = new SR(); rec.lang = 'vi-VN'; rec.interimResults = true; rec.continuous = false;
+    rec.onresult = function (e) {
+      var t = '', fin = false;
+      for (var i = 0; i < e.results.length; i++) { t += e.results[i][0].transcript; fin = e.results[i].isFinal; }
+      q.value = t;
+      $('ob-mic-q').textContent = 'Độ chính xác: ' + Math.round((e.results[0][0].confidence || .95) * 1000) / 10 + '%';
+      if (fin) ask();
+    };
+    rec.onend = function () { listening = false; mic.classList.remove('on'); if (stage.dataset.state === 'listening') setState('idle'); };
+    rec.onerror = function () { listening = false; mic.classList.remove('on'); setState('idle'); };
+  }
+  function toggleMic() {
+    if (!rec) { $('ob-mic-q').textContent = 'Trình duyệt không hỗ trợ mic'; return; }
+    if (speechSynthesis) speechSynthesis.cancel();
+    if (listening) { rec.stop(); return; }
+    q.value = ''; listening = true; mic.classList.add('on'); setState('listening');
+    try { rec.start(); } catch (e) {}
+  }
+  function speak(text) {
+    if (!voiceOn || !window.speechSynthesis) { setState('idle'); return; }
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(plain(text)); u.lang = 'vi-VN';
+    u.onstart = function () { setState('speaking'); };
+    u.onend = u.onerror = function () { setState('idle'); };
+    setState('speaking'); speechSynthesis.speak(u);
+  }
 
-    function setBusy(v) { busy = v; send.disabled = v; send.style.opacity = v ? .5 : 1; }
+  /* ---------- gửi câu hỏi ---------- */
+  function ask(text) {
+    var v = (text || q.value).trim();
+    if (!v || busy) return;
+    q.value = ''; busy = true; send.disabled = true;
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    $('ob-q-text').textContent = '“' + v + '”'; $('ob-q-text').className = '';
+    $('ob-qtime').textContent = clock();
+    $('ob-sub').innerHTML = '<div class="as-typing"><i></i><i></i><i></i></div>';
+    setState('thinking'); cotReset(); cot(1, 'done'); cot(2, 'run');
+    var t0 = performance.now();
 
-    function ask(text) {
-      var v = (text || q.value).trim();
-      if (!v || busy) return;
-      q.value = ''; userMsg(v); setBusy(true);
-      var wait = botMsg('', '', true);
-
-      fetch('/api/chat', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q: v, history: history })
+    fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q: v, history: history }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        var ans = res.d.ans || 'Có lỗi xảy ra.';
+        lastAns = ans;
+        $('ob-lat').textContent = Math.round(performance.now() - t0) + 'ms';
+        cot(2, 'done'); cot(3, 'done');
+        $('ob-sub').innerHTML = md(ans);
+        $('ob-src').innerHTML = '<span class="icon i16 t-pri">menu_book</span><span>' + (res.d.src ? esc(res.d.src) : 'Không có nguồn trích dẫn cụ thể.') + '</span>';
+        if (res.ok) {
+          history.push({ role: 'user', text: v }, { role: 'model', text: ans });
+          if (history.length > 24) history = history.slice(-24);
+          speak(ans);
+        } else setState('idle');
       })
-        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-        .then(function (res) {
-          wait.remove();
-          botMsg(res.d.ans, res.d.src ? 'Nguồn: ' + res.d.src : '');
-          if (res.ok) {
-            history.push({ role: 'user', text: v }, { role: 'model', text: res.d.ans });
-            if (history.length > 24) history = history.slice(-24);
-          }
-        })
-        .catch(function () { wait.remove(); botMsg('Không kết nối được máy chủ. Bạn thử lại sau nhé.', ''); })
-        .finally(function () { setBusy(false); q.focus(); });
-    }
+      .catch(function () {
+        $('ob-sub').innerHTML = '<p>Không kết nối được máy chủ. Bạn thử lại sau nhé.</p>';
+        cotReset(); setState('idle');
+      })
+      .finally(function () { busy = false; send.disabled = false; q.focus(); });
+  }
 
-    function reset() {
-      stream.querySelectorAll('.as-turn').forEach(function (t) { t.remove(); });
-      history = [];
-      botMsg('Xin chào! Mình là HUSTBot. Bạn muốn hỏi về điểm học phần, quy chế, lịch thi hay học bổng?', '');
-    }
+  function reset() {
+    history = []; lastAns = ''; cotReset(); setState('idle');
+    if (window.speechSynthesis) speechSynthesis.cancel();
+    $('ob-q-text').textContent = 'Nhấn mic hoặc gõ câu hỏi bên dưới để bắt đầu…'; $('ob-q-text').className = 't-mut';
+    $('ob-sub').innerHTML = '<p>Đã làm mới cuộc trò chuyện. Bạn muốn hỏi gì tiếp theo?</p>';
+    $('ob-src').innerHTML = '<span class="icon i16 t-mut">menu_book</span><span>Chưa có nguồn trích dẫn.</span>';
+  }
 
-    send.addEventListener('click', function () { ask(); });
-    q.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ask(); } });
-    document.querySelectorAll('.as-pills .chip').forEach(function (c) {
-      c.addEventListener('click', function () { ask(c.textContent); });
+  /* ---------- sự kiện ---------- */
+  send.addEventListener('click', function () { ask(); });
+  q.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); ask(); } });
+  mic.addEventListener('click', toggleMic);
+  $('ob-new').addEventListener('click', reset);
+  $('ob-copy').addEventListener('click', function () { if (lastAns && navigator.clipboard) navigator.clipboard.writeText(lastAns); });
+  $('ob-replay').addEventListener('click', function () { if (lastAns) speak(lastAns); });
+  $('ob-tts').addEventListener('click', function () {
+    voiceOn = !voiceOn;
+    this.querySelector('.icon').textContent = voiceOn ? 'volume_up' : 'volume_off';
+    $('ob-voice-state').textContent = voiceOn ? 'Bật' : 'Tắt';
+    if (!voiceOn && window.speechSynthesis) { speechSynthesis.cancel(); setState('idle'); }
+  });
+  document.querySelectorAll('.ob-sugs .chip').forEach(function (c) {
+    c.addEventListener('click', function () { ask(c.textContent.replace(/^[a-z_]+/, '').trim() || c.textContent); });
+  });
+  $('ob-m-orb').addEventListener('click', function () { stage.classList.remove('compact'); this.classList.add('on'); $('ob-m-txt').classList.remove('on'); });
+  $('ob-m-txt').addEventListener('click', function () { stage.classList.add('compact'); this.classList.add('on'); $('ob-m-orb').classList.remove('on'); });
+  document.addEventListener('keydown', function (e) { if (e.ctrlKey && e.key.toLowerCase() === 'n') { e.preventDefault(); reset(); } });
+
+  /* ---------- 3D ORB (Three.js) ---------- */
+  (function () {
+    if (!window.THREE) return;
+    var box = $('ob-orb');
+    var w = box.clientWidth || 460, h = box.clientHeight || 460;
+    var scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(55, w / h, .1, 1000);
+    cam.position.z = 5.2;
+    var rd = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    rd.setSize(w, h); rd.setPixelRatio(Math.min(devicePixelRatio, 2)); box.appendChild(rd.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, .7));
+    var l1 = new THREE.PointLight(0xba141a, 4.5, 30); l1.position.set(3, 4, 4); scene.add(l1);
+    var l2 = new THREE.PointLight(0x00f0ff, 2.5, 25); l2.position.set(-4, -2, 3); scene.add(l2);
+
+    var coreMat = new THREE.MeshPhongMaterial({ color: 0xba141a, emissive: 0xd32f2f, emissiveIntensity: .9, shininess: 90, transparent: true, opacity: .92 });
+    var core = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), coreMat); scene.add(core);
+    var outer = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 4), new THREE.MeshStandardMaterial({ color: 0xff3b30, wireframe: true, transparent: true, opacity: .45, roughness: .2 })); scene.add(outer);
+    var r1 = new THREE.Mesh(new THREE.TorusGeometry(1.85, .022, 16, 100), new THREE.MeshBasicMaterial({ color: 0xff5252, transparent: true, opacity: .75 })); r1.rotation.x = Math.PI / 3; scene.add(r1);
+    var r2 = new THREE.Mesh(new THREE.TorusGeometry(2.1, .018, 16, 100), new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: .5 })); r2.rotation.y = Math.PI / 4; scene.add(r2);
+
+    var N = 420, pos = new Float32Array(N * 3);
+    for (var i = 0; i < N; i++) {
+      var r = 1.6 + Math.random() * 1.8, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(ph) * Math.cos(th); pos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th); pos[i * 3 + 2] = r * Math.cos(ph);
+    }
+    var pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    var pts = new THREE.Points(pg, new THREE.PointsMaterial({ color: 0xff6b6b, size: .045, transparent: true, opacity: .85 })); scene.add(pts);
+
+    var SPEED = { idle: 1, listening: 1.4, thinking: 2.4, speaking: 1.7 }, AMP = { idle: .6, listening: 1, thinking: .8, speaking: 1.4 };
+    var clock = new THREE.Clock(), t = 0;
+    (function loop() {
+      requestAnimationFrame(loop);
+      var s = stage.dataset.state || 'idle', k = SPEED[s], a = AMP[s];
+      t += clock.getDelta() * k;
+      var c = (t * 1.6) % 1, hb;
+      if (c < .15) hb = 1 + Math.sin(c / .15 * Math.PI) * .22 * a;
+      else if (c >= .22 && c < .38) hb = 1 + Math.sin((c - .22) / .16 * Math.PI) * .14 * a;
+      else hb = 1 + Math.sin(t * 3) * .03;
+      core.scale.setScalar(hb);
+      coreMat.emissiveIntensity = .7 + (hb - 1) * 3.5;
+      var op = 1 + (hb - 1) * .45; outer.scale.setScalar(op);
+      outer.rotation.y = t * .35; outer.rotation.x = t * .22;
+      r1.rotation.z = t * .4; r1.rotation.y = Math.sin(t * .5) * .3;
+      r2.rotation.x = t * .35; r2.rotation.z = -t * .25;
+      pts.rotation.y = t * .08; pts.rotation.x = Math.sin(t * .1) * .05;
+      rd.render(scene, cam);
+    })();
+    addEventListener('resize', function () {
+      var w2 = box.clientWidth || 460, h2 = box.clientHeight || 460;
+      cam.aspect = w2 / h2; cam.updateProjectionMatrix(); rd.setSize(w2, h2);
     });
-    document.getElementById('as-new').addEventListener('click', reset);
-    document.addEventListener('keydown', function (e) {
-      if (e.ctrlKey && e.key.toLowerCase() === 'n') { e.preventDefault(); reset(); }
-    });
-    down();
   })();
+})();
 </script>{% endblock %}
