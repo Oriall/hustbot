@@ -32,6 +32,10 @@
       <div class="ov-meta lg">
         <span><span class="icon i18 t-pri">verified</span> CPA: <b>{{ user.cpa }}</b> / 4.0</span><span
           class="sep">/</span>
+        {% if prog %}
+        <span><span class="icon i18">donut_large</span> Đã đạt <b>{{ prog.earned }}</b> TC • còn <b>{{
+            prog.required_left_courses }}</b> môn bắt buộc</span><span class="sep">/</span>
+        {% endif %}
         <span><span class="icon i18 t-ok">military_tech</span> ĐRL: <b>{{ user.drl }}</b>/100 ({{ dr.rank }})</span>
         {% if dr.gap > 0 and dr.weakest %}
         <span class="tag hot">Thiếu {{ dr.gap }}đ để đạt Xuất sắc • yếu nhất {{ dr.weakest.code }}</span>

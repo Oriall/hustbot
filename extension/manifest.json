@@ -1,18 +1,14 @@
 {
   "manifest_version": 3,
   "name": "HUSTBot Connect",
-  "version": "0.7",
-  "description": "Gửi thời khóa biểu hiển thị trên qldt.hust.edu.vn tới HUSTBot (chỉ chạy khi bạn bấm, không lấy token).",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage"
-  ],
+  "version": "0.9",
+  "description": "Gửi thời khóa biểu, chương trình đào tạo, học bổng tới HUSTBot (chỉ chạy khi bạn bấm; không gửi cookie/token lên HUSTBot).",
+  "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": [
     "http://localhost:5000/*",
-    "https://student.hust.edu.vn/*"
+    "https://student.hust.edu.vn/*",
+    "https://qldt.hust.edu.vn/*",
+    "https://ctt-sis.hust.edu.vn/*"
   ],
-  "action": {
-    "default_popup": "popup.html"
-  }
+  "action": { "default_popup": "popup.html" }
 }

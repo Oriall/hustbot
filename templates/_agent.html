@@ -1,24 +1,28 @@
-<div id="ag" class="ag" data-page="{{ request.endpoint }}">
+<div id="ag" class="ag" data-page="{{ request.endpoint }}" data-state="idle">
     <section class="ag-panel" id="ag-panel" hidden role="dialog" aria-label="Trợ lý HUSTBot">
         <header class="ag-h">
+            <span class="ag-orb sm" aria-hidden="true"><i><u class="e l"></u><u class="e r"></u></i></span>
             <div class="ag-ht">
-                <span class="ag-ic"><span class="icon">neurology</span></span>
-                <div><b>HUSTBot</b><small><span class="sd ok"></span>Đang theo dõi trang này</small></div>
+                <b>HUST<span class="acc">Bot</span></b>
+                <small><span class="sd ok pulse"></span>Đang theo dõi trang này
+                    <span class="ag-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></small>
             </div>
-            <div class="ag-ha">
+            <span class="ag-bt">
                 <button class="ibtn" id="ag-clear" title="Cuộc trò chuyện mới"><span
                         class="icon">restart_alt</span></button>
                 <button class="ibtn" id="ag-close" title="Đóng (Esc)"><span class="icon">close</span></button>
-            </div>
+            </span>
         </header>
         <div class="ag-log" id="ag-log" aria-live="polite"></div>
         <div class="ag-chips" id="ag-chips"></div>
         <div class="ag-in">
             <textarea id="ag-q" rows="1" placeholder="Hỏi hoặc nhờ HUSTBot làm gì đó..."></textarea>
-            <button class="ag-send" id="ag-send" title="Gửi"><span class="icon">send</span></button>
+            <button class="ag-send" id="ag-send" title="Gửi"><span class="icon">arrow_upward</span></button>
         </div>
     </section>
-    <button class="ag-fab" id="ag-fab" aria-label="Mở trợ lý HUSTBot" aria-expanded="false" title="Trợ lý (Ctrl+K)">
-        <span class="icon">neurology</span>
+
+    <button class="ag-bot" id="ag-fab" aria-label="Mở trợ lý HUSTBot" aria-expanded="false" title="HUSTBot (Ctrl+K)">
+        <span class="ag-orb" aria-hidden="true"><i><u class="e l"></u><u class="e r"></u></i></span>
     </button>
 </div>
+<script src="{{ url_for('static', filename='js/agent-eyes.js') }}" defer></script>

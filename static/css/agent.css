@@ -1,67 +1,158 @@
-/* ===== Agent nổi (ag-) — dùng chung biến màu của style.css ===== */
+/* =====================================================================
+   HUSTBot: orb có mắt + khung chat (ag-)
+   Thay THẾ HOÀN TOÀN mọi CSS ag- trước đó
+   ===================================================================== */
 .ag {
     position: fixed;
+    top: auto;
+    left: auto;
     right: 20px;
     bottom: 20px;
-    z-index: 30;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 12px;
+    gap: 10px;
+    max-width: calc(100vw - 24px);
     view-transition-name: agent
-        /* giữ nguyên widget khi chuyển trang */
 }
 
-.ag-fab {
-    width: 52px;
-    height: 52px;
+.ag[hidden],
+.ag [hidden] {
+    display: none !important
+}
+
+/* ---------- Bot (orb có mắt) ---------- */
+.ag-bot {
+    position: relative;
+    flex: none;
+    width: 64px;
+    height: 64px;
+    padding: 0;
     border: 0;
-    border-radius: 16px;
-    background: var(--red);
-    color: #ffdad6;
+    border-radius: 50%;
+    background: #0a0e14;
     display: grid;
     place-items: center;
     cursor: pointer;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
-    transition: transform .15s, background .15s
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .55), 0 0 0 1px var(--s3);
+    transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s
 }
 
-.ag-fab:hover {
-    background: #bb151b
+.ag-bot:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .6), 0 0 0 1px var(--red), 0 0 24px rgba(186, 20, 26, .4)
 }
 
-.ag-fab:active {
+.ag-bot:active {
     transform: scale(.94)
 }
 
-.ag-fab .icon {
-    font-size: 26px
+.ag-bot:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(186, 20, 26, .35);
+    pointer-events: none;
+    animation: ag-ring 2.8s ease-out infinite
 }
 
+.ag-bot[aria-expanded="true"]:before {
+    animation: none;
+    opacity: 0
+}
+
+.ag-orb {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 38px;
+    height: 38px;
+    margin: auto
+}
+
+.ag-orb i {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a80 0, #d32f2f 30%, #ba141a 60%, #5a0a0d 100%);
+    box-shadow: 0 0 16px rgba(211, 47, 47, .8), inset 0 0 9px rgba(255, 180, 171, .35);
+    animation: ag-beat 1.8s ease-in-out infinite
+}
+
+.ag-orb:before,
+.ag-orb:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none
+}
+
+.ag-orb:before {
+    inset: -7px;
+    border: 1.5px solid rgba(255, 82, 82, .7);
+    transform: rotate(0) scaleY(.38);
+    animation: ag-orbit 5s linear infinite
+}
+
+.ag-orb:after {
+    inset: -10px;
+    border: 1px solid rgba(0, 240, 255, .55);
+    transform: rotate(60deg) scaleY(.32);
+    animation: ag-orbit2 7s linear infinite
+}
+
+/* mắt: nhìn theo con trỏ (--ex/--ey do agent-eyes.js đặt), chớp mắt */
+.ag-orb .e {
+    position: absolute;
+    top: 33%;
+    width: 6px;
+    height: 10px;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 0 7px rgba(255, 255, 255, .85);
+    transform: translate(calc(var(--ex, 0) * 2.5px), calc(var(--ey, 0) * 2.5px));
+    animation: ag-blink 5s infinite;
+    text-decoration: none
+}
+
+.ag-orb .e.l {
+    left: 24%
+}
+
+.ag-orb .e.r {
+    right: 24%
+}
+
+.ag[data-state="thinking"] .e {
+    height: 4px;
+    top: 42%;
+    animation: none
+}
+
+.ag[data-state="thinking"] .ag-orb i {
+    animation-duration: .8s
+}
+
+.ag[data-state="thinking"] .ag-orb:before {
+    animation-duration: 1.4s
+}
+
+/* ---------- Khung chat ---------- */
 .ag-panel {
-    width: 380px;
-    max-width: calc(100vw - 40px);
-    height: 560px;
-    max-height: calc(100vh - 110px);
+    width: min(380px, calc(100vw - 24px));
+    height: min(520px, 70vh);
     display: flex;
     flex-direction: column;
-    background: #0a0e14;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, .6), 0 0 0 1px var(--s3);
+    border-radius: 18px 18px 6px 18px;
+    background: rgba(28, 32, 38, .98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, .55), 0 0 0 1px var(--s3);
+    transform-origin: bottom right;
     animation: ag-pop .22s cubic-bezier(.2, .8, .2, 1) both;
-    transform-origin: bottom right
-}
-
-.ag-panel[hidden] {
-    display: none
-}
-
-@keyframes ag-pop {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(.97)
-    }
+    overflow: hidden
 }
 
 .ag-h {
@@ -70,130 +161,111 @@
     justify-content: space-between;
     align-items: center;
     gap: 8px;
-    padding: 10px 12px;
-    background: var(--s1)
+    padding: 10px 12px 10px 14px;
+    border-bottom: 1px solid var(--s4)
 }
 
-.ag-ht {
-    display: flex;
+.ag-who {
+    display: inline-flex;
     align-items: center;
-    gap: 10px
+    gap: 6px;
+    font: 600 12px 'JetBrains Mono', monospace;
+    letter-spacing: .03em
 }
 
-.ag-ht b {
-    display: block;
-    font-size: 14px
-}
-
-.ag-ht small {
-    display: flex;
-    align-items: center;
-    font-size: 11px
-}
-
-.ag-ht .sd {
+.ag-who .sd {
     width: 6px;
-    height: 6px;
-    margin-right: 5px
+    height: 6px
 }
 
-.ag-ic {
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    background: rgba(186, 20, 26, .2);
-    color: var(--pri);
-    display: grid;
-    place-items: center
-}
-
-.ag-ha {
+.ag-bt {
     display: flex;
-    gap: 4px
+    gap: 2px
 }
 
-.ag-ha .ibtn {
+.ag-bt .ibtn {
     background: none;
-    padding: 5px
+    padding: 3px
 }
 
-.ag-ha .ibtn:hover {
-    background: var(--s2)
+.ag-bt .ibtn:hover {
+    background: var(--s3)
 }
 
+.ag-bt .icon {
+    font-size: 18px
+}
+
+/* ---------- Danh sách tin nhắn ---------- */
 .ag-log {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 14px 12px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     overscroll-behavior: contain
 }
 
 .ag-m {
     max-width: 88%;
-    padding: 9px 12px;
-    border-radius: 14px;
+    padding: 8px 12px;
     font-size: 13px;
     line-height: 20px;
-    overflow-wrap: anywhere;
-    animation: msg-in .25s cubic-bezier(.2, .8, .2, 1) both
+    word-break: break-word
 }
 
-.ag-m.b {
-    align-self: flex-start;
-    background: var(--s1);
-    border-top-left-radius: 4px
+.ag-m p,
+.ag-m ul,
+.ag-m ol {
+    margin: 0 0 6px
 }
 
-.ag-m.u {
-    align-self: flex-end;
-    background: var(--red);
-    color: #fff;
-    border-top-right-radius: 4px;
-    animation-name: msg-in-r
-}
-
-.ag-m p {
-    margin: 0
-}
-
-.ag-m p+p,
-.ag-m p+ul,
-.ag-m ul+p,
-.ag-m ol+p,
-.ag-m p+ol {
-    margin-top: 6px
+.ag-m p:last-child,
+.ag-m ul:last-child,
+.ag-m ol:last-child {
+    margin-bottom: 0
 }
 
 .ag-m ul,
 .ag-m ol {
-    margin: 0;
     padding-left: 18px
 }
 
-.ag-m code {
-    background: var(--s2);
-    padding: 1px 5px;
-    border-radius: 4px;
-    font: 500 12px 'JetBrains Mono', monospace
+.ag-m b {
+    color: var(--pri)
 }
 
-.ag-m small.src {
+.ag-m code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--s4);
+    font: 12px 'JetBrains Mono', monospace
+}
+
+.ag-m.b {
+    align-self: flex-start;
+    border-radius: 14px 14px 14px 4px;
+    background: var(--s3)
+}
+
+.ag-m.u {
+    align-self: flex-end;
+    border-radius: 14px 14px 4px 14px;
+    background: var(--red);
+    color: #fff
+}
+
+.ag-m small {
     display: block;
     margin-top: 6px;
-    color: var(--pri);
-    font: 500 11px 'JetBrains Mono', monospace
+    font: 500 10px 'JetBrains Mono', monospace;
+    color: var(--pri)
 }
 
 .ag-m small.act {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 6px;
-    color: var(--ok)
+    color: var(--mut)
 }
 
 .ag-typing {
@@ -207,7 +279,7 @@
     height: 6px;
     border-radius: 50%;
     background: var(--mut);
-    animation: as-dot 1.2s infinite ease-in-out
+    animation: ag-dot 1.2s infinite ease-in-out
 }
 
 .ag-typing i:nth-child(2) {
@@ -218,18 +290,14 @@
     animation-delay: .3s
 }
 
+/* ---------- Gợi ý nhanh ---------- */
 .ag-chips {
     flex: none;
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 6px;
-    padding: 6px 12px;
-    overflow-x: auto;
-    background: var(--s1);
-    scrollbar-width: none
-}
-
-.ag-chips::-webkit-scrollbar {
-    display: none
+    padding: 0 12px 8px
 }
 
 .ag-chips:empty {
@@ -237,59 +305,88 @@
 }
 
 .ag-chips .chip {
-    background: var(--s2);
-    white-space: nowrap;
-    padding: 4px 10px;
-    font-size: 12px
+    padding: 5px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(38, 42, 49, .96);
+    color: var(--tx);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--s4);
+    animation: ag-rise .3s cubic-bezier(.2, .8, .2, 1) both;
+    transition: background .15s, color .15s
+}
+
+.ag-chips .chip:nth-child(2) {
+    animation-delay: .05s
+}
+
+.ag-chips .chip:nth-child(3) {
+    animation-delay: .1s
 }
 
 .ag-chips .chip:hover {
-    background: var(--s3)
+    background: var(--red);
+    color: #fff
 }
 
+/* ---------- Ô nhập ---------- */
 .ag-in {
     flex: none;
     display: flex;
     align-items: flex-end;
-    gap: 8px;
-    padding: 10px 12px;
-    background: var(--s1)
+    gap: 6px;
+    margin: 0 10px 10px;
+    padding: 5px 5px 5px 14px;
+    border-radius: 16px;
+    background: rgba(38, 42, 49, .97);
+    box-shadow: 0 0 0 1px var(--s4)
+}
+
+.ag-in:focus-within {
+    box-shadow: 0 0 0 1px var(--red)
 }
 
 .ag-in textarea {
     flex: 1;
-    min-height: 38px;
-    max-height: 110px;
+    min-width: 0;
     resize: none;
-    background: #0a0e14;
-    color: var(--tx);
+    background: none;
     border: 0;
-    border-radius: 10px;
-    padding: 9px 12px;
+    outline: 0;
+    color: var(--tx);
     font: inherit;
     font-size: 13px;
-    outline: 0
+    line-height: 20px;
+    padding: 7px 0;
+    max-height: 110px
 }
 
-.ag-in textarea:focus {
-    box-shadow: 0 0 0 1px var(--red)
+.ag-in textarea::placeholder {
+    color: #6b7078
 }
 
 .ag-send {
-    width: 38px;
-    height: 38px;
+    flex: none;
+    width: 34px;
+    height: 34px;
     border: 0;
-    border-radius: 10px;
+    border-radius: 50%;
     background: var(--red);
     color: #ffdad6;
     display: grid;
     place-items: center;
     cursor: pointer;
-    flex: none
+    transition: background .18s, transform .12s
 }
 
 .ag-send:hover {
     background: #bb151b
+}
+
+.ag-send:active {
+    transform: scale(.92)
 }
 
 .ag-send:disabled {
@@ -297,6 +394,103 @@
     cursor: not-allowed
 }
 
+/* ---------- Keyframes ---------- */
+@keyframes ag-beat {
+
+    0%,
+    100% {
+        transform: scale(1)
+    }
+
+    10% {
+        transform: scale(1.14)
+    }
+
+    20% {
+        transform: scale(1)
+    }
+
+    30% {
+        transform: scale(1.08)
+    }
+
+    42% {
+        transform: scale(1)
+    }
+}
+
+@keyframes ag-orbit {
+    to {
+        transform: rotate(360deg) scaleY(.38)
+    }
+}
+
+@keyframes ag-orbit2 {
+    from {
+        transform: rotate(60deg) scaleY(.32)
+    }
+
+    to {
+        transform: rotate(-300deg) scaleY(.32)
+    }
+}
+
+@keyframes ag-ring {
+    0% {
+        transform: scale(.9);
+        opacity: .5
+    }
+
+    75%,
+    100% {
+        transform: scale(1.5);
+        opacity: 0
+    }
+}
+
+@keyframes ag-pop {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(.96)
+    }
+}
+
+@keyframes ag-rise {
+    from {
+        opacity: 0;
+        transform: translateY(6px)
+    }
+}
+
+@keyframes ag-dot {
+
+    0%,
+    80%,
+    100% {
+        opacity: .3;
+        transform: translateY(0)
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-3px)
+    }
+}
+
+@keyframes ag-blink {
+
+    0%,
+    94%,
+    100% {
+        scale: 1 1
+    }
+
+    97% {
+        scale: 1 .1
+    }
+}
+
+/* ---------- Responsive / giảm chuyển động ---------- */
 @media(max-width:600px) {
     .ag {
         right: 12px;
@@ -304,15 +498,433 @@
     }
 
     .ag-panel {
-        width: calc(100vw - 24px);
-        height: calc(100vh - 96px)
+        height: min(480px, 68vh)
     }
 }
 
 @media(prefers-reduced-motion:reduce) {
 
     .ag-panel,
-    .ag-m {
+    .ag-chips .chip,
+    .ag-typing i,
+    .ag-orb i,
+    .ag-orb:before,
+    .ag-orb:after,
+    .ag-orb .e,
+    .ag-bot:before {
+        animation: none !important
+    }
+}
+/* =====================================================================
+   HUSTBot - trợ lý nổi (ag-)  |  thay THẾ HOÀN TOÀN mọi CSS ag- trước đó
+   ===================================================================== */
+.ag {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    max-width: calc(100vw - 24px);
+    view-transition-name: agent
+}
+
+.ag[hidden],
+.ag [hidden] {
+    display: none !important
+}
+
+/* ================= ORB (nút nổi) ================= */
+.ag-bot {
+    position: relative;
+    flex: none;
+    width: 66px;
+    height: 66px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #1a2029, #0a0e14 70%);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .08), 0 0 30px rgba(186, 20, 26, .25);
+    transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s;
+    animation: ag-float 4.5s ease-in-out infinite
+}
+
+.ag-bot[aria-expanded="true"] {
+    animation: none
+}
+
+.ag-bot:hover {
+    transform: scale(1.07);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .6), 0 0 0 1px var(--red), 0 0 34px rgba(186, 20, 26, .55)
+}
+
+.ag-bot:active {
+    transform: scale(.94)
+}
+
+.ag-bot:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(186, 20, 26, .35);
+    pointer-events: none;
+    animation: ag-ring 2.8s ease-out infinite
+}
+
+.ag-bot[aria-expanded="true"]:before {
+    animation: none;
+    opacity: 0
+}
+
+.ag-orb {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 38px;
+    height: 38px;
+    margin: auto
+}
+
+.ag-orb i {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff8a80 0, #d32f2f 30%, #ba141a 60%, #5a0a0d 100%);
+    box-shadow: 0 0 16px rgba(211, 47, 47, .8), inset 0 0 9px rgba(255, 180, 171, .35);
+    animation: ag-beat 1.8s ease-in-out infinite
+}
+
+.ag-orb:before,
+.ag-orb:after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none
+}
+
+.ag-orb:before {
+    inset: -7px;
+    border: 1.5px solid rgba(255, 82, 82, .7);
+    transform: rotate(0) scaleY(.38);
+    animation: ag-orbit 5s linear infinite
+}
+
+.ag-orb:after {
+    inset: -10px;
+    border: 1px solid rgba(0, 240, 255, .55);
+    transform: rotate(60deg) scaleY(.32);
+    animation: ag-orbit2 7s linear infinite
+}
+
+/* mắt (--ex/--ey do agent-eyes.js đặt trên #ag) */
+.ag-orb .e {
+    position: absolute;
+    top: 33%;
+    width: 6px;
+    height: 10px;
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 0 7px rgba(255, 255, 255, .85);
+    transform: translate(calc(var(--ex, 0) * 2.5px), calc(var(--ey, 0) * 2.5px));
+    animation: ag-blink 5s infinite;
+    text-decoration: none
+}
+
+.ag-orb .e.l {
+    left: 24%
+}
+
+.ag-orb .e.r {
+    right: 24%
+}
+
+.ag[data-state="thinking"] .e {
+    height: 4px;
+    top: 42%;
+    animation: none
+}
+
+.ag[data-state="thinking"] .ag-orb i {
+    animation-duration: .8s
+}
+
+.ag[data-state="thinking"] .ag-orb:before {
+    animation-duration: 1.4s
+}
+
+/* orb nhỏ trong header */
+.ag-orb.sm {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    margin: 0
+}
+
+.ag-orb.sm:before,
+.ag-orb.sm:after {
+    display: none
+}
+
+.ag-orb.sm .e {
+    width: 5px;
+    height: 8px
+}
+
+.ag-orb.sm .e.l {
+    left: 25%
+}
+
+.ag-orb.sm .e.r {
+    right: 25%
+}
+/* ================= KHÔNG KHUNG: lời thoại nổi ================= */
+.ag-panel {
+    position: relative;
+    width: min(380px, calc(100vw - 24px));
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+    pointer-events: none            /* vùng trống không chặn click trang */
+}
+
+.ag-panel > * { pointer-events: auto }
+
+/* Header: chỉ còn 2 nút nhỏ nổi */
+.ag-h {
+    flex: none;
+    align-self: flex-end;
+    display: flex;
+    padding: 0;
+    background: none
+}
+
+.ag-h .ag-orb.sm,
+.ag-ht { display: none }
+
+.ag-bt { display: flex; gap: 6px }
+
+.ag-bt .ibtn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(18, 21, 27, .7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 6px 16px rgba(0, 0, 0, .4);
+    opacity: .75;
+    transition: opacity .15s, background .15s, transform .15s
+}
+
+.ag-bt .ibtn:hover { opacity: 1; background: var(--red); transform: scale(1.08) }
+.ag-bt .icon { font-size: 17px }
+
+/* Log: không nền, tin xếp từ dưới lên, mờ dần ở trên */
+.ag-log {
+    flex: none;
+    max-height: min(48vh, 420px);
+    overflow-y: auto;
+    padding: 18px 2px 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 8px;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 36px);
+    mask-image: linear-gradient(180deg, transparent 0, #000 36px)
+}
+
+.ag-log::-webkit-scrollbar { display: none }
+.ag-log:empty { display: none }
+
+.ag-m {
+    position: relative;
+    pointer-events: auto;
+    padding: 9px 14px;
+    font-size: 13px;
+    line-height: 20px;
+    word-break: break-word;
+    max-height: 600px;
+    backdrop-filter: blur(16px) saturate(1.3);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    animation: ag-float-in .4s cubic-bezier(.2, .9, .2, 1) both
+}
+
+.ag-m.out { animation: ag-vanish .7s ease-in forwards; pointer-events: none }
+.ag-m.gone { display: none }
+
+.ag-m p, .ag-m ul, .ag-m ol { margin: 0 0 6px }
+.ag-m p:last-child, .ag-m ul:last-child, .ag-m ol:last-child { margin-bottom: 0 }
+.ag-m ul, .ag-m ol { padding-left: 18px }
+.ag-m b { color: var(--pri) }
+
+.ag-m code {
+    padding: 1px 5px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, .12);
+    font: 12px 'JetBrains Mono', monospace
+}
+
+/* Bot: kính tối, nổi bên trái */
+.ag-m.b {
+    align-self: flex-start;
+    max-width: 88%;
+    border-radius: 18px 18px 18px 4px;
+    background: rgba(18, 21, 27, .78);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .09), 0 10px 28px rgba(0, 0, 0, .5)
+}
+
+/* Người dùng: gradient đỏ, nổi bên phải */
+.ag-m.u {
+    align-self: flex-end;
+    max-width: 84%;
+    border-radius: 18px 18px 4px 18px;
+    background: linear-gradient(135deg, #e0393e, #ba141a);
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(186, 20, 26, .45)
+}
+
+.ag-m small {
+    display: block;
+    margin-top: 7px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, .08);
+    font: 500 10px 'JetBrains Mono', monospace;
+    color: var(--pri)
+}
+
+.ag-m small.act { border: 0; padding-top: 0; color: var(--mut) }
+
+.ag-typing { display: inline-flex; gap: 4px; padding: 6px 2px }
+
+.ag-typing i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--mut);
+    animation: ag-dot 1.2s infinite ease-in-out
+}
+
+.ag-typing i:nth-child(2) { animation-delay: .15s }
+.ag-typing i:nth-child(3) { animation-delay: .3s }
+
+/* Gợi ý nhanh */
+.ag-chips {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 7px
+}
+
+.ag-chips:empty { display: none }
+
+.ag-chips .chip {
+    padding: 6px 13px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(18, 21, 27, .72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: var(--tx);
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 6px 16px rgba(0, 0, 0, .4);
+    animation: ag-rise .35s cubic-bezier(.2, .8, .2, 1) both;
+    transition: background .15s, transform .15s
+}
+
+.ag-chips .chip:nth-child(2) { animation-delay: .06s }
+.ag-chips .chip:nth-child(3) { animation-delay: .12s }
+.ag-chips .chip:hover { background: var(--red); color: #fff; transform: translateY(-2px) }
+
+/* Ô nhập: chỉ còn một viên thuốc nổi */
+.ag-in {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 5px 5px 5px 16px;
+    border-radius: 999px;
+    background: rgba(18, 21, 27, .8);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 10px 26px rgba(0, 0, 0, .5);
+    transition: box-shadow .2s
+}
+
+.ag-in:focus-within {
+    box-shadow: 0 0 0 1px var(--red), 0 0 24px rgba(186, 20, 26, .35), 0 10px 26px rgba(0, 0, 0, .5)
+}
+
+.ag-in textarea {
+    flex: 1;
+    min-width: 0;
+    resize: none;
+    background: none;
+    border: 0;
+    outline: 0;
+    color: var(--tx);
+    font: inherit;
+    font-size: 13px;
+    line-height: 20px;
+    padding: 8px 0;
+    max-height: 110px
+}
+
+.ag-in textarea::placeholder { color: #707680 }
+
+.ag-send {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e0393e, #ba141a);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(186, 20, 26, .5);
+    transition: transform .15s, box-shadow .15s
+}
+
+.ag-send:hover { transform: scale(1.08) }
+.ag-send:active { transform: scale(.92) }
+.ag-send:disabled { opacity: .45; cursor: not-allowed; transform: none }
+@keyframes ag-float-in {
+    from { opacity: 0; transform: translateY(18px) scale(.94); filter: blur(4px) }
+}
+
+@keyframes ag-vanish {
+    0%   { opacity: 1; transform: none; filter: none; max-height: 600px }
+    55%  { opacity: 0; transform: translateY(-14px) scale(.96); filter: blur(5px); max-height: 600px }
+    100% { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin: 0 }
+}
+@media(max-width:600px) {
+    .ag { right: 12px; bottom: 12px }
+    .ag-log { max-height: 42vh }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    .ag-bot, .ag-m, .ag-chips .chip, .ag-typing i, .ag-eq i,
+    .ag-orb i, .ag-orb:before, .ag-orb:after, .ag-orb .e, .ag-bot:before {
         animation: none !important
     }
 }

@@ -9,6 +9,7 @@ load_dotenv()   # PHẢI chạy trước khi import connect/awards (chúng đọ
 import gemini_bot  # noqa: E402
 import connect  # noqa: E402  (phải đứng trước db.create_all())
 import awards  # noqa: E402
+import program  # noqa: E402
 from models import (SOURCES, ConductScore, Criterion, Event, EventRegistration, KBEntry,  # noqa: E402
                     ScheduleItem, Student, Task, db)
 from seed import seed_if_empty  # noqa: E402
@@ -23,7 +24,8 @@ db.init_app(app)
 
 app.register_blueprint(connect.bp)      # <- dòng đang thiếu
 app.register_blueprint(awards.bp)
-PUBLIC_ENDPOINTS = {"login", "static", "connect.ext_timetable", "awards.ext_awards"}
+app.register_blueprint(program.bp)
+PUBLIC_ENDPOINTS = {"login", "static", "connect.ext_timetable", "awards.ext_awards", "program.ext_program"}
 with app.app_context():
     db.create_all()
     seed_if_empty()
@@ -84,7 +86,9 @@ def get_events(sid):
 def get_user(sid):
     s = db.session.get(Student, sid)
     drl = sum(c["now"] for c in get_criteria(sid))
-    return dict(name=s.name, mssv=s.mssv, cls=s.cls, cpa="%.2f" % s.cpa, drl=drl)
+    ps = program.summary(sid)
+    cpa = ps["cpa_est"] if ps and ps["cpa_est"] is not None else (s.cpa or 0)
+    return dict(name=s.name, mssv=s.mssv, cls=s.cls, cpa="%.2f" % cpa, drl=drl)
 
 
 def done_count(sid):
@@ -215,13 +219,15 @@ def overview():
         next_class=next_class,
         week=sum(by_src.values()), week_caption=", ".join("%d %s" % (v, k) for k, v in by_src.items()),
         done=done, progress=round(100 * done / (done + len(tasks))) if done + len(tasks) else 100,
-        cpa_rank=cpa_rank(g.student.cpa))
+        cpa_rank=cpa_rank(float(get_user(sid)["cpa"])))          # <- đổi: lấy CPA đã gồm bản ước tính
 
     return render_template(
         "overview.html", tasks=tasks[:3], all_count=len(tasks), timeline=timeline, stats=stats,
         conduct=conduct, wl=week_workload(sid, tasks, now),
+        prog=program.summary(sid),                                  # <- thêm dòng này
         awards_list=awards.award_dicts(sid)[:3], awards_synced=awards.last_sync(sid),
         events_today=[e for e in conduct["history"] if e["date"] == now.strftime("%d/%m/%Y")], now=now)
+
 
 
 @app.route("/bai-tap")
@@ -356,7 +362,20 @@ def make_agent_tools(sid, actions):
         return awards.award_detail(sid, award_id) or {"ok": False, "error": "Không tìm thấy học bổng này"}
     """Công cụ agent được gọi. `sid` được CỐ ĐỊNH trong closure từ session đăng nhập:
     AI không có tham số student_id nên không thể (kể cả bị prompt injection) đọc/ghi dữ liệu người khác."""
+    def get_program_summary() -> dict:
+        """Tiến độ chương trình đào tạo (đồng bộ từ ctt-sis): CPA ước tính, tín chỉ đã đạt, số môn và TC bắt buộc còn lại.
+        Muốn tính CPA mới khi có thêm điểm: (grade_points + TC*điểm) / (graded_credits + TC)."""
+        s = program.summary(sid)
+        if not s:
+            return {"ok": False, "error": "Chưa có dữ liệu chương trình đào tạo; sinh viên cần gửi từ ctt-sis.hust.edu.vn bằng extension."}
+        s["synced_at"] = s["synced_at"].strftime("%d/%m/%Y %H:%M") if s["synced_at"] else ""
+        return s
 
+    def list_program_courses(status: str = "remaining", only_required: bool = True, limit: int = 40) -> dict:
+        """Liệt kê học phần trong chương trình đào tạo. status: 'remaining' (chưa đạt), 'done' (đã đạt), 'all'.
+        Có kỳ học gợi ý, số TC, nhóm học phần, điểm."""
+        rows, more = program.course_list(sid, status, only_required, limit)
+        return {"courses": rows, "more_not_shown": more}
     def list_tasks(include_done: bool = False) -> dict:
         """Liệt kê bài tập/bài thi/deadline của sinh viên, sắp theo hạn nộp.
         include_done=True để lấy cả bài đã hoàn thành. Mỗi bài có id, mã môn, tên, hạn, trạng thái."""
@@ -427,7 +446,7 @@ def make_agent_tools(sid, actions):
         return {"ok": True, "page": PAGES[page]}
 
     return [list_tasks, set_task_done, get_class_schedule, get_conduct_summary,
-            list_events, register_event, search_knowledge_base, navigate_to, list_awards, get_award_detail]
+            list_events, register_event, search_knowledge_base, navigate_to, list_awards, get_award_detail, get_program_summary, list_program_courses]
 
 
 @app.post("/api/agent")
