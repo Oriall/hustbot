@@ -17,8 +17,6 @@
 {% set dn = ['T2','T3','T4','T5','T6','T7','CN'] %}
 {% set cpa_v = user.cpa|float(0) %}
 {% set drl_v = user.drl|float(0) %}
-{% set cpa_off = (289.03 * (1 - ([cpa_v / 4, 1]|min)))|round(2) %}
-{% set drl_off = (251.33 * (1 - ([drl_v / 100, 1]|min)))|round(2) %}
 {% set first = 'deadline' if s.urgent else 'schedule' %}
 
 {# --- Chuỗi mô tả cho từng node --- #}
@@ -34,11 +32,15 @@
 
 {% set aw_n = awards_list|length if awards_list else 0 %}
 {% if aw_n %}{% set aw_sub = awards_list[0].name %}{% else %}{% set aw_sub = 'Chưa có dữ liệu' %}{% endif %}
+
+{# pathLength="100" => offset tính theo thang 100 #}
 {% set cpa_off = (100 * (1 - ([cpa_v / 4, 1]|min)))|round(2) %}
 {% set drl_off = (100 * (1 - ([drl_v / 100, 1]|min)))|round(2) %}
+
 {% if wl.peak is not none %}{% set wl_sub = 'Đỉnh ' ~ dn[wl.peak] ~ ' • ' ~ wl.hours_total ~ ' giờ' %}
-{% set start = first if (s.urgent or s.overdue or s.classes) else 'home' %}
 {% else %}{% set wl_sub = wl.hours_total ~ ' giờ học • ' ~ wl.due_total ~ ' hạn nộp' %}{% endif %}
+{# start đặt NGOÀI nhánh if để luôn tồn tại #}
+{% set start = first if (s.urgent or s.overdue or s.classes) else 'home' %}
 
 <div class="ov">
 
@@ -149,6 +151,7 @@
             </div>
           </div>
         </div>
+
         <!-- 1. NHIỆM VỤ -->
         <div class="pane{{ ' on' if start == 'deadline' }}" data-pane="deadline" data-icon="local_fire_department"
           data-title="Nhiệm vụ &amp; Bài thi cần ưu tiên"
@@ -267,7 +270,7 @@
             </div>
             <p class="muted">{{ e.crit_name }}{% if e.place %} • {{ e.place }}{% endif %}</p>
             <div class="between"><small>{{ e.weekday }}</small>
-              <button class="btn primary" data-reg="{{ e.id }}">Đăng ký</button>
+              <button class="btn primary" data-reg="{{ e.id }}" data-name="{{ e.name }}">Đăng ký</button>
             </div>
           </div>
           {% else %}
@@ -356,11 +359,33 @@
             </svg>
             <div class="days">
               {% for d in dn %}
-              <span class="{{ 't-pri' if loop.index0 == wl.peak }}">{% if loop.index0 == wl.peak %}<b>{{ d }} (Đỉnh
-                  điểm)</b>{% else %}{{ d }}{% endif %}</span>
+              <span class="{{ 't-pri' if loop.index0 == wl.peak }}">{{ d }}{{ ' ▲' if loop.index0 == wl.peak }}</span>
               {% endfor %}
             </div>
           </div>
+
+          <div class="stats3">
+            <div class="stat"><b>{{ wl.hours_total }}h</b><small>Giờ học tuần này</small></div>
+            <div class="stat"><b class="t-pri">{{ dn[wl.peak] if wl.peak is not none else '–' }}</b><small>Ngày đỉnh
+                điểm</small></div>
+            <div class="stat"><b>{{ wl.due_total }}</b><small>Hạn nộp</small></div>
+          </div>
+
+          <div class="sub-h"><span class="icon t-pri">timer</span>Sắp đến hạn</div>
+          {% for t in tasks[:3] %}
+          <div class="task{{ ' is-hot' if t.level in ('late', 'soon') }}">
+            <div class="between">
+              <div>
+                <small class="{{ 't-pri' if t.level in ('late', 'soon') else 't-mut' }}"><b>{{ t.label }} • {{ t.due
+                    }}</b></small>
+                <h4>{{ t.title }} ({{ t.code }})</h4>
+              </div>
+              <span class="tag s-{{ t.source }}"><i class="sd"></i>{{ t.source_name }}</span>
+            </div>
+          </div>
+          {% else %}
+          <p class="muted">Tuần này không có hạn nộp nào.</p>
+          {% endfor %}
         </div>
 
       </div>
@@ -368,16 +393,23 @@
     <button type="button" class="detail-tab" id="pn-show"><span class="icon i18">side_navigation</span>Chi tiết</button>
   </section>
 
-  <!-- THANH DƯỚI: ĐỒNG BỘ & THAO TÁC NHANH -->
+  <!-- THANH DƯỚI: CỔNG + TERMINAL + THAO TÁC NHANH -->
   <section class="dock">
     <div class="dock-l">
       <span class="gate-chip"><i class="sd" data-cn-dot data-state="none"></i>Cổng QLĐT HUST
         <small data-cn-text>Đang kiểm tra…</small>
         <button class="btn sm" type="button" data-cn-open>Kết nối</button></span>
-      {% for n in ['Microsoft Teams', 'FAMI', 'iCTSV'] %}
-      <span class="gate-chip off"><i class="sd"></i>{{ n }}<small>Sắp hỗ trợ</small></span>
-      {% endfor %}
+      <span class="gate-chip off" title="Microsoft Teams, FAMI, iCTSV">
+        <span class="icon i16">more_horiz</span>+3 cổng sắp hỗ trợ</span>
     </div>
+
+    <div class="term-box" aria-live="polite">
+      <div class="term-bar"><i class="sd ok"></i>hustbot@hub:~
+        <button type="button" id="term-clear">clear</button>
+      </div>
+      <div class="term-log" id="term-log"></div>
+    </div>
+
     <div class="dock-r">
       <button class="btn primary" id="btn-sync-all"><span class="icon i18" id="sync-icon">sync</span><span
           class="lbl">Đồng bộ tức thì</span></button>
@@ -400,6 +432,29 @@
     const ic = $('#pn-icon'), tt = $('#pn-title'), sb = $('#pn-sub');
     let cur = '{{ start }}';
 
+    /* ---------- Terminal ---------- */
+    const log = $('#term-log');
+    const say = (cls, txt) => {
+      const p = document.createElement('p');
+      p.className = cls; p.textContent = txt;
+      log.appendChild(p);
+      while (log.children.length > 40) log.firstChild.remove();
+      log.scrollTop = log.scrollHeight;
+    };
+    const CMD = {
+      deadline: 'deadlines --urgent', schedule: 'schedule --today', drl: 'drl --gap',
+      scholarship: 'awards --open', ai: 'copilot --attach', rhythm: 'workload --week'
+    };
+    $('#term-clear').onclick = () => log.replaceChildren();
+    say('out', 'ready · bấm một node để chạy lệnh');
+
+    /* Log trạng thái cổng QLĐT khi connect.js cập nhật */
+    const cn = $('[data-cn-text]'); let lastCn = '';
+    if (cn) new MutationObserver(() => {
+      const v = cn.textContent.trim();
+      if (v && v !== lastCn) { lastCn = v; say('out', 'qldt › ' + v); }
+    }).observe(cn, { childList: true, characterData: true, subtree: true });
+
     /* Trạng thái bảng: hidden (mặc định) | normal | wide */
     const setPanel = st => {
       stage.dataset.panel = st;
@@ -420,24 +475,35 @@
       });
     };
 
-    $('#pn-hide').onclick = () => setPanel('hidden');
+    $('#pn-hide').onclick = () => { setPanel('hidden'); say('cmd', 'panel --close'); };
     $('#pn-show').onclick = () => open(cur);
     $('#pn-size').onclick = () => setPanel(stage.dataset.panel === 'wide' ? 'normal' : 'wide');
 
-    /* Bấm lại node đang mở thì đóng bảng */
+    /* Bấm lại node đang mở thì đóng bảng; mỗi click ghi 1 lệnh vào terminal */
     nodes.forEach(n => n.onclick = () => {
-      if (stage.dataset.panel !== 'hidden' && n.classList.contains('active')) setPanel('hidden');
-      else open(n.dataset.node);
+      if (stage.dataset.panel !== 'hidden' && n.classList.contains('active')) {
+        setPanel('hidden'); say('cmd', 'panel --close');
+      } else {
+        open(n.dataset.node);
+        say('cmd', CMD[n.dataset.node] || 'open ' + n.dataset.node);
+        say('out ' + (n.classList.contains('hot') ? 'warn' : 'ok'),
+          n.querySelector('b').textContent + ' · ' + n.querySelector('small').textContent);
+      }
     });
-    $$('[data-go]').forEach(b => b.onclick = () => open(b.dataset.go));
+    $$('[data-go]').forEach(b => b.onclick = () => {
+      open(b.dataset.go);
+      say('cmd', CMD[b.dataset.go] || 'open ' + b.dataset.go);
+    });
     open(cur, false);
 
     /* Đồng bộ thật với LMS (hàm syncNow nằm trong connect.js) */
     const btn = $('#btn-sync-all'), sic = $('#sync-icon'), lb = $('.lbl', btn);
     btn.onclick = async () => {
       const old = lb.textContent;
+      say('cmd', 'sync --all');
       sic.classList.add('rot'); btn.classList.add('busy'); lb.textContent = 'Đang đồng bộ...';
       const r = await window.HBConnect.syncNow();
+      say('out ' + (r.reload ? 'ok' : ''), r.text);
       sic.classList.remove('rot'); btn.classList.remove('busy');
       lb.textContent = r.text;
       setTimeout(() => lb.textContent = old, 1800);
@@ -446,6 +512,7 @@
 
     /* Gửi câu hỏi cho agent nổi (agent.js tự mở khung chat); không có thì chuyển sang trang Trợ lý */
     const askAgent = (text) => {
+      say('cmd', 'copilot ask "' + text + '"');
       const q = document.getElementById('ag-q'), send = document.getElementById('ag-send');
       if (q && send) { q.value = text; send.click(); } else location.href = '/tro-ly-ai';
     };
@@ -459,14 +526,19 @@
 
     /* Đăng ký hoạt động gợi ý */
     $$('[data-reg]').forEach(b => b.onclick = async () => {
+      say('cmd', 'events register ' + b.dataset.reg);
       b.disabled = true; b.textContent = 'Đang đăng ký…';
       try {
         const r = await fetch('/api/events/' + b.dataset.reg + '/register', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ registered: true })
         });
         if (!r.ok) throw 0;
-        location.reload();
-      } catch (e) { b.disabled = false; b.textContent = 'Thử lại'; }
+        say('out ok', '✓ đã đăng ký · ' + (b.dataset.name || b.dataset.reg));
+        setTimeout(() => location.reload(), 600);
+      } catch (e) {
+        say('out warn', '✗ đăng ký thất bại, thử lại');
+        b.disabled = false; b.textContent = 'Thử lại';
+      }
     });
   })();
 </script>{% endblock %}
