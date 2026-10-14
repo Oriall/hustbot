@@ -1,0 +1,1510 @@
+/* =====================================================
+   TRANG TỔNG QUAN (orbital HUD) - static/css/overview.css
+   - Mọi rule nằm trong .ov  => không ảnh hưởng trang khác
+   - Nạp SAU style.css. Biến màu (--bg, --s1..s4, --pri, --red, --ok,
+     --mut, --tx) lấy từ :root của style.css
+   ===================================================== */
+
+/* ---------- Keyframes ---------- */
+@keyframes ov-pulse {
+    50% {
+        opacity: .4
+    }
+}
+
+@keyframes ov-ping {
+
+    75%,
+    100% {
+        transform: scale(2.2);
+        opacity: 0
+    }
+}
+
+@keyframes ov-spin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes ov-ring {
+    from {
+        stroke-dashoffset: var(--c)
+    }
+}
+
+@keyframes ov-fade {
+    from {
+        opacity: 0;
+        transform: translateY(6px)
+    }
+}
+
+@keyframes ov-grow {
+    from {
+        transform: scaleX(0)
+    }
+}
+
+/* ---------- 1. Khung & tiện ích ---------- */
+.ov {
+    display: flex;
+    flex-direction: column;
+    gap: 16px
+}
+
+.ov h1,
+.ov h2,
+.ov h3,
+.ov h4 {
+    margin: 0
+}
+
+.ov a {
+    color: inherit;
+    text-decoration: none
+}
+
+.ov b {
+    font-weight: 600
+}
+
+.ov small,
+.ov .muted {
+    color: var(--mut);
+    font-size: 12px
+}
+
+.ov .muted {
+    margin: 2px 0 0
+}
+
+.ov .t-pri {
+    color: var(--pri)
+}
+
+.ov .t-ok {
+    color: var(--ok)
+}
+
+.ov .t-mut {
+    color: var(--mut)
+}
+
+.ov .mono {
+    font: 500 12px 'JetBrains Mono', monospace
+}
+
+.ov .nw {
+    white-space: nowrap
+}
+
+.ov .blk {
+    display: block;
+    margin: 12px 0 6px
+}
+
+.ov .ul {
+    text-decoration: underline;
+    text-decoration-color: var(--red);
+    text-underline-offset: 3px
+}
+
+.ov .between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px
+}
+
+.ov .tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.ov .icon {
+    font-family: 'Material Symbols Outlined';
+    font-size: 20px;
+    line-height: 1;
+    font-weight: 400;
+    font-style: normal;
+    flex: none
+}
+
+.ov .icon.i16 {
+    font-size: 16px
+}
+
+.ov .icon.i18 {
+    font-size: 18px
+}
+
+.ov .sd {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mut);
+    margin-right: 6px
+}
+
+.ov .sd.ok {
+    background: var(--ok)
+}
+
+.ov .s-teams .sd {
+    background: #60a5fa
+}
+
+.ov .s-lms .sd {
+    background: #f87171
+}
+
+.ov .s-fami .sd {
+    background: #c084fc
+}
+
+.ov .s-moocai .sd {
+    background: var(--ok)
+}
+
+/* Chấm trạng thái cổng QLĐT: nếu connect.js dùng giá trị data-state khác, sửa ở đây */
+.ov .sd[data-state="ok"],
+.ov .sd[data-state="on"],
+.ov .sd[data-state="connected"] {
+    background: var(--ok)
+}
+
+.ov .sd[data-state="err"],
+.ov .sd[data-state="off"],
+.ov .sd[data-state="expired"] {
+    background: var(--pri)
+}
+
+.ov .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--s3);
+    color: var(--mut);
+    white-space: nowrap
+}
+
+.ov .tag.ok {
+    background: rgba(0, 107, 73, .3);
+    color: var(--ok)
+}
+
+.ov .tag.hot {
+    background: rgba(186, 20, 26, .2);
+    color: var(--pri)
+}
+
+.ov .tag[class*="s-"] {
+    background: #0a0e14
+}
+
+.ov .pill {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 6px;
+    background: var(--red);
+    color: #fff
+}
+
+.ov .btn {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    background: var(--s3);
+    color: var(--tx);
+    border: 0;
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px
+}
+
+.ov .btn:hover {
+    background: var(--s4)
+}
+
+.ov .btn.primary {
+    background: var(--red);
+    color: #fff
+}
+
+.ov .btn.sm {
+    padding: 3px 8px;
+    font-size: 11px
+}
+
+.ov .btn:active {
+    transform: scale(.96)
+}
+
+.ov .btn:focus-visible,
+.ov .node:focus-visible,
+.ov .ai-prompt:focus-visible {
+    outline: 2px solid var(--pri);
+    outline-offset: 2px
+}
+
+.ov .link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--mut)
+}
+
+.ov .link:hover {
+    color: var(--tx)
+}
+
+.ov .link.end {
+    justify-content: flex-end;
+    margin-top: 4px
+}
+
+.ov .mini {
+    height: 4px;
+    background: var(--s2);
+    border-radius: 2px;
+    overflow: hidden
+}
+
+.ov .mini div {
+    height: 100%;
+    border-radius: 2px;
+    transform-origin: left;
+    animation: ov-grow .8s cubic-bezier(.2, .8, .2, 1) both
+}
+
+.ov .mini.inline {
+    display: inline-block;
+    width: 64px;
+    vertical-align: middle;
+    margin: 0 6px
+}
+
+.ov .b-ok {
+    background: var(--ok)
+}
+
+.ov .b-pri {
+    background: var(--pri)
+}
+
+/* ---------- 2. Thanh trạng thái trên cùng ---------- */
+.ov .hud-top {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--s1);
+    border-radius: 10px;
+    padding: 10px 14px
+}
+
+.ov .hud-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    font-size: 12px;
+    color: var(--mut)
+}
+
+.ov .hud-stat b {
+    color: var(--tx)
+}
+
+.ov .hud-stat b.t-ok {
+    color: var(--ok)
+}
+
+.ov .term {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(186, 20, 26, .2);
+    color: var(--pri);
+    font: 600 11px 'JetBrains Mono', monospace;
+    padding: 2px 8px;
+    border-radius: 6px
+}
+
+.ov .term .sd {
+    background: var(--pri);
+    margin: 0;
+    animation: ov-ping 1.2s infinite
+}
+
+.ov .alert-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: var(--s2);
+    padding: 7px 12px;
+    border-radius: 8px
+}
+
+.ov .alert-bar p {
+    margin: 0;
+    font-size: 13px
+}
+
+/* ---------- 3. Sân khấu ---------- */
+.ov .stage {
+    --dw: 420px;
+    --gp: 20px;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--dw);
+    gap: var(--gp);
+    align-items: stretch;
+    transition: grid-template-columns .55s var(--ease), gap .55s var(--ease)
+}
+
+.ov .stage[data-panel="wide"] {
+    --dw: 600px
+}
+
+.ov .stage[data-panel="hidden"] {
+    --dw: 0px;
+    --gp: 0px
+}
+
+.ov .orb-wrap {
+    container-type: inline-size;
+    container-name: orbwrap;
+    display: grid;
+    place-items: center;
+    position: relative;
+    padding: 8px 0;
+    background: radial-gradient(circle at center, rgba(186, 20, 26, .08) 0%, transparent 65%), radial-gradient(rgba(255, 180, 171, .04) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px;
+    border-radius: 12px;
+    overflow: hidden
+}
+
+.ov .orb {
+    container-type: inline-size;
+    position: relative;
+    width: min(100%, 600px);
+    aspect-ratio: 1
+}
+
+.ov .rings {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    opacity: .5;
+    pointer-events: none
+}
+
+/* 3 vòng đứt quay độc lập, ngược chiều nhau */
+.ov .rings circle {
+    transform-box: fill-box;
+    transform-origin: center
+}
+
+.ov .rings circle:nth-child(1) {
+    animation: ov-spin 120s linear infinite
+}
+
+.ov .rings circle:nth-child(2) {
+    animation: ov-spin 80s linear infinite reverse
+}
+
+.ov .rings circle:nth-child(3) {
+    animation: ov-spin 50s linear infinite
+}
+
+/* Lõi trung tâm */
+.ov .core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44cqw;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 30%, var(--s2), var(--s1));
+    box-shadow: 0 0 40px rgba(186, 20, 26, .35);
+    display: grid;
+    place-items: center;
+    z-index: 2;
+    animation: ov-breathe 4s ease-in-out infinite
+}
+
+.ov .gauge {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    fill: none;
+    pointer-events: none
+}
+
+.ov .gauge .trk {
+    stroke: var(--s3);
+    stroke-width: 2.5
+}
+
+.ov .gauge .arc {
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: var(--c);
+    stroke-dashoffset: var(--off);
+    animation: ov-ring 1.6s cubic-bezier(.2, .8, .2, 1) .3s both
+}
+
+.ov .gauge .arc.pri {
+    stroke: var(--red);
+    filter: drop-shadow(0 0 2px rgba(186, 20, 26, .8))
+}
+
+.ov .gauge .arc.ok {
+    stroke: var(--ok);
+    filter: drop-shadow(0 0 2px rgba(78, 222, 163, .6))
+}
+
+/* Nội dung trong lõi: chừa lề để nằm gọn trong vòng xanh bên trong */
+.ov .core-in {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+    width: 100%;
+    padding: 0 15%;
+    box-sizing: border-box
+}
+
+.ov .core-in>small {
+    max-width: 100%;
+    font-size: 10px;
+    line-height: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.ov .ov-name {
+    font-size: clamp(12px, 2.5cqw, 16px);
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden
+}
+
+.ov .cpa {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin: 1px 0
+}
+
+.ov .cpa span {
+    font-size: clamp(22px, 5cqw, 32px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.02em
+}
+
+.ov .cpa small {
+    font: 700 10px 'JetBrains Mono', monospace;
+    color: var(--pri)
+}
+
+.ov .core-in .tag {
+    font-size: 10px;
+    padding: 1px 7px
+}
+
+.ov .core-drl b {
+    color: var(--ok)
+}
+
+/* Node quỹ đạo: 6 góc quanh lõi */
+.ov .node {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(120px, 26cqw);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transform: translate(-50%, -50%) rotate(var(--a)) translateY(-39cqw) rotate(calc(var(--a) * -1)) scale(var(--k, 1));
+    transition: transform .2s cubic-bezier(.2, .8, .2, 1)
+}
+
+.ov .node:hover {
+    --k: 1.06
+}
+
+.ov .nicon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: var(--s2);
+    border: 2px solid rgba(194, 199, 208, .35);
+    color: var(--mut);
+    transition: border-color .2s, color .2s, box-shadow .2s
+}
+
+.ov .nicon .icon {
+    font-size: 28px
+}
+
+.ov .node:hover .nicon {
+    border-color: var(--pri);
+    color: var(--pri)
+}
+
+.ov .node.hot .nicon {
+    border-color: rgba(255, 180, 171, .8);
+    color: var(--pri);
+    box-shadow: 0 0 20px rgba(186, 20, 26, .5)
+}
+
+.ov .node.hot .nicon .icon {
+    animation: ov-pulse 1.8s ease-in-out infinite
+}
+
+.ov .node.ok .nicon {
+    border-color: rgba(78, 222, 163, .6);
+    color: var(--ok);
+    box-shadow: 0 0 14px rgba(78, 222, 163, .25)
+}
+
+.ov .node.active .nicon {
+    border-color: var(--pri);
+    color: var(--pri);
+    box-shadow: 0 0 0 3px rgba(186, 20, 26, .35), 0 0 24px rgba(186, 20, 26, .6)
+}
+
+.ov .node.ok.active .nicon {
+    border-color: var(--ok);
+    color: var(--ok);
+    box-shadow: 0 0 0 3px rgba(0, 107, 73, .45), 0 0 24px rgba(78, 222, 163, .45)
+}
+
+.ov .nbadge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: var(--red);
+    color: #fff;
+    font: 700 9px 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    z-index: 1
+}
+
+.ov .ncap {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    text-align: center;
+    width: 100%;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgba(22, 26, 33, .85);
+    border: 1px solid rgba(255, 255, 255, .06)
+}
+
+.ov .ncap b {
+    font-size: 12px;
+    line-height: 16px
+}
+
+.ov .ncap small {
+    font-size: 10.5px;
+    line-height: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden
+}
+
+.ov .node.hot .ncap small {
+    color: var(--pri)
+}
+
+.ov .node.ok .ncap b {
+    color: var(--ok)
+}
+
+.ov .node.active .ncap {
+    border-color: rgba(255, 180, 171, .45)
+}
+
+/* ---------- 4. Bảng chi tiết ---------- */
+.ov .detail {
+    display: flex;
+    flex-direction: column;
+    background: var(--s1);
+    border-radius: 12px;
+    min-height: 0;
+    max-height: 640px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 180, 171, .15)
+}
+
+.ov .dhead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--s2)
+}
+
+.ov .dhead h2 {
+    font-size: 15px
+}
+
+.ov .dicon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(186, 20, 26, .2);
+    color: var(--pri)
+}
+
+.ov .dbody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 14px 14px;
+    scrollbar-width: thin
+}
+
+.ov .pane {
+    display: none;
+    flex-direction: column;
+    gap: 8px
+}
+
+.ov .pane.on {
+    display: flex;
+    animation: ov-fade .25s ease both
+}
+
+.ov .sub-h {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    margin-top: 6px
+}
+
+/* Thẻ nhiệm vụ / học bổng / hoạt động */
+.ov .task {
+    background: var(--s2);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 3px solid transparent;
+    transition: background .18s
+}
+
+.ov .task:hover {
+    background: var(--s3)
+}
+
+.ov .task.is-hot {
+    border-left-color: var(--pri)
+}
+
+.ov .task h3 {
+    font-size: 14px;
+    line-height: 20px
+}
+
+.ov .task h4,
+.ov .tl h4 {
+    font-size: 13px;
+    line-height: 20px;
+    margin: 2px 0
+}
+
+.ov .task p {
+    margin: 2px 0 0
+}
+
+.ov .big-n {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1
+}
+
+.ov .pulse {
+    animation: ov-pulse 1.6s ease-in-out infinite
+}
+
+/* Timeline */
+.ov .timeline {
+    position: relative;
+    padding-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.ov .timeline:before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    bottom: 12px;
+    width: 2px;
+    background: var(--s4)
+}
+
+.ov .tl {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start
+}
+
+.ov .tl.done {
+    opacity: .6
+}
+
+.ov .tl .time {
+    width: 86px;
+    flex: none;
+    font: 600 11px/14px 'JetBrains Mono', monospace
+}
+
+.ov .tl .time small {
+    display: block;
+    font-family: Inter, sans-serif;
+    font-weight: 400;
+    opacity: .8;
+    margin-top: 2px
+}
+
+.ov .dot2 {
+    position: absolute;
+    left: -24px;
+    top: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%
+}
+
+.ov .d-mut {
+    background: #42474f
+}
+
+.ov .d-pri {
+    background: var(--pri)
+}
+
+.ov .d-red {
+    background: var(--red)
+}
+
+.ov .d-ok {
+    background: var(--ok)
+}
+
+.ov .dot2.ping {
+    animation: ov-ping 1.2s infinite
+}
+
+.ov .tl .box {
+    flex: 1;
+    background: var(--s2);
+    border-radius: 8px;
+    padding: 10px 12px
+}
+
+.ov .tl .box.hotbox {
+    background: rgba(186, 20, 26, .12)
+}
+
+/* Biểu đồ áp lực */
+.ov .wlbox {
+    background: var(--s2);
+    border-radius: 8px;
+    padding: 10px
+}
+
+.ov .wlbox svg {
+    display: block;
+    width: 100%;
+    height: 100px
+}
+
+.ov .days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font: 500 11px 'JetBrains Mono', monospace;
+    color: var(--mut);
+    margin-top: 4px
+}
+
+/* AI (chỉ chuyển câu hỏi sang agent nổi) */
+.ov .aimsg {
+    background: var(--s2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 20px
+}
+
+.ov .ai-prompt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+    background: var(--s2);
+    color: var(--mut);
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    transition: background .18s, color .18s
+}
+
+.ov .ai-prompt:hover {
+    background: var(--s3);
+    color: var(--tx)
+}
+
+.ov .aiin {
+    position: relative;
+    margin-top: 4px
+}
+
+.ov .aiin input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--s2);
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 40px 9px 12px;
+    color: var(--tx);
+    font: inherit;
+    font-size: 13px
+}
+
+.ov .aiin input:focus {
+    outline: 0;
+    background: var(--s3)
+}
+
+.ov .send {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--red);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    display: grid;
+    place-items: center
+}
+
+/* ---------- 5. Thanh dưới ---------- */
+.ov .dock {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--s3)
+}
+
+.ov .dock-l,
+.ov .dock-r {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px
+}
+
+.ov .gate-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--s1);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px
+}
+
+.ov .gate-chip .sd {
+    margin: 0
+}
+
+.ov .gate-chip.off {
+    opacity: .55
+}
+
+.ov #btn-sync-all {
+    font-weight: 600
+}
+
+.ov #btn-sync-all.busy {
+    opacity: .75
+}
+
+.ov #sync-icon {
+    transition: transform .5s
+}
+
+.ov #sync-icon.rot {
+    transform: rotate(180deg)
+}
+
+.ov .ov-logout {
+    margin: 0
+}
+
+.ov .ov-logout .btn:hover {
+    background: var(--red);
+    color: #fff
+}
+
+/* ---------- 6. Responsive ---------- */
+@media (max-width: 1100px) {
+
+    .ov .stage,
+    .ov .stage[data-panel] {
+        grid-template-columns: 1fr
+    }
+
+    .ov .detail {
+        max-height: none
+    }
+}
+
+/* Orbit quá hẹp (điện thoại): chuyển lõi + lưới 2 cột node */
+@container orbwrap (max-width: 520px) {
+    .ov .orb {
+        aspect-ratio: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 10px;
+        padding: 10px;
+        width: 100%
+    }
+
+    .ov .rings,
+    .ov .halo {
+        display: none
+    }
+
+    .ov .core {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        grid-column: 1 / -1;
+        width: min(280px, 100%);
+        margin: 0 auto
+    }
+
+    .ov .node {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: auto;
+        transform: none;
+        padding-top: 10px
+    }
+
+    .ov .node:hover {
+        --k: 1
+    }
+
+    .ov .ncap b {
+        font-size: 12px
+    }
+
+    .ov .orb::after {
+        display: none
+    }
+}
+
+/* ---------- 7. Nền lưới chìm ---------- */
+.ov {
+    position: relative;
+    isolation: isolate
+}
+
+.ov::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255, 180, 171, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 180, 171, .05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 25%, transparent 85%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 25%, transparent 85%);
+    animation: ov-grid 24s linear infinite
+}
+
+/* bỏ lớp chấm cũ của orb-wrap để khỏi chồng 2 texture */
+.ov .orb-wrap {
+    background: radial-gradient(circle at center, rgba(186, 20, 26, .1) 0%, transparent 65%);
+    background-size: 100% 100%
+}
+
+/* ---------- 8. Animation vào trang ---------- */
+.ov .hud-top {
+    animation: ov-fade .5s both
+}
+
+.ov .orb-wrap {
+    animation: ov-fade .6s .1s both
+}
+
+.ov .detail {
+    animation: ov-fade .6s .2s both
+}
+
+.ov .dock {
+    animation: ov-fade .6s .3s both
+}
+
+/* Node: bật lên lần lượt rồi trôi nhẹ */
+.ov .node {
+    animation: ov-pop .6s cubic-bezier(.2, .8, .2, 1) both
+}
+
+.ov .node:nth-of-type(1) {
+    animation-delay: .25s
+}
+
+.ov .node:nth-of-type(2) {
+    animation-delay: .35s
+}
+
+.ov .node:nth-of-type(3) {
+    animation-delay: .45s
+}
+
+.ov .node:nth-of-type(4) {
+    animation-delay: .55s
+}
+
+.ov .node:nth-of-type(5) {
+    animation-delay: .65s
+}
+
+.ov .node:nth-of-type(6) {
+    animation-delay: .75s
+}
+
+.ov .nicon {
+    animation: ov-float 4s ease-in-out infinite
+}
+
+.ov .node:nth-of-type(2n) .nicon {
+    animation-delay: -2s
+}
+
+.ov .node:nth-of-type(3n) .nicon {
+    animation-delay: -1s
+}
+
+/* Tia sáng chạy quanh vòng đỏ ngoài cùng */
+.ov .orb::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: var(--pri);
+    box-shadow: 0 0 12px 3px rgba(255, 180, 171, .7);
+    z-index: 1;
+    pointer-events: none;
+    animation: ov-orbit 14s linear infinite
+}
+
+/* Nội dung panel hiện lần lượt */
+.ov .pane.on>* {
+    animation: ov-fade .35s both
+}
+
+.ov .pane.on>*:nth-child(2) {
+    animation-delay: .06s
+}
+
+.ov .pane.on>*:nth-child(3) {
+    animation-delay: .12s
+}
+
+.ov .pane.on>*:nth-child(4) {
+    animation-delay: .18s
+}
+
+.ov .pane.on>*:nth-child(5) {
+    animation-delay: .24s
+}
+
+.ov .pane.on>*:nth-child(n+6) {
+    animation-delay: .3s
+}
+
+/* Hover có chiều sâu */
+.ov .task {
+    transition: background .18s, transform .18s, box-shadow .18s
+}
+
+.ov .task:hover {
+    transform: translateX(3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .25)
+}
+
+.ov .hud-top,
+.ov .detail,
+.ov .gate-chip {
+    transition: border-color .2s, box-shadow .2s
+}
+
+.ov .detail:hover {
+    box-shadow: 0 0 30px rgba(186, 20, 26, .12)
+}
+
+/* Thanh thông báo có tia quét */
+.ov .alert-bar {
+    position: relative;
+    overflow: hidden
+}
+
+.ov .alert-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(255, 180, 171, .08), transparent);
+    animation: ov-sweep 4s ease-in-out infinite
+}
+
+/* Nút chính ánh lên khi hover */
+.ov .btn.primary {
+    position: relative;
+    overflow: hidden
+}
+
+.ov .btn.primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .25), transparent 70%);
+    transform: translateX(-100%)
+}
+
+.ov .btn.primary:hover::after {
+    animation: ov-sweep .7s ease
+}
+
+/* ---------- 9. Trạng thái trống ---------- */
+.ov .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 28px 16px;
+    background: var(--s2);
+    border-radius: 10px;
+    border: 1px dashed rgba(255, 180, 171, .22)
+}
+
+.ov .emo {
+    font-size: 46px;
+    line-height: 1;
+    animation: ov-float 3.5s ease-in-out infinite;
+    filter: drop-shadow(0 6px 12px rgba(186, 20, 26, .35))
+}
+
+.ov .empty h4 {
+    font-size: 14px;
+    line-height: 20px
+}
+
+.ov .empty p {
+    margin: 0;
+    max-width: 300px;
+    font-size: 12.5px;
+    line-height: 19px;
+    color: var(--mut)
+}
+
+.ov .empty-act {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px
+}
+
+.ov .chip {
+    background: var(--s1);
+    color: var(--tx);
+    border: 1px solid rgba(255, 180, 171, .15);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, transform .18s
+}
+
+.ov .chip:hover {
+    background: var(--s3);
+    border-color: var(--pri);
+    transform: translateY(-1px)
+}
+
+.ov .steps {
+    list-style: none;
+    counter-reset: st;
+    margin: 4px 0 0;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+.ov .steps li {
+    counter-increment: st;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--s1);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    line-height: 18px
+}
+
+.ov .steps li::before {
+    content: counter(st);
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--red);
+    color: #fff;
+    font: 700 11px 'JetBrains Mono', monospace
+}
+
+/* ---------- 10. Nút ẩn / phóng to bảng chi tiết ---------- */
+.ov .dtools {
+    margin-left: auto;
+    display: flex;
+    gap: 6px
+}
+
+.ov .dbtn {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    background: var(--s3);
+    color: var(--mut);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .18s, color .18s
+}
+
+.ov .dbtn:hover {
+    background: var(--red);
+    color: #fff
+}
+
+.ov .dbtn:focus-visible,
+.ov .detail-tab:focus-visible,
+.ov .chip:focus-visible {
+    outline: 2px solid var(--pri);
+    outline-offset: 2px
+}
+
+.ov .detail-tab {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    align-items: center;
+    gap: 6px;
+    background: var(--s2);
+    color: var(--tx);
+    border: 1px solid rgba(255, 180, 171, .25);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font: inherit;
+    font-size: 12.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .3);
+    transition: background .18s
+}
+
+.ov .detail-tab:hover {
+    background: var(--red);
+    color: #fff
+}
+
+.ov .stage[data-panel="hidden"] .detail-tab {
+    display: inline-flex
+}
+
+/* ---------- 11. Animation mở / đóng bảng chi tiết ---------- */
+.ov .detail {
+    min-width: 0;
+    animation: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transform-origin: right center;
+    transition: opacity .4s ease .12s, transform .55s var(--ease), box-shadow .2s
+}
+
+.ov .stage[data-panel="hidden"] .detail {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(48px) scale(.96);
+    transition: opacity .25s ease, transform .5s var(--ease), visibility 0s .55s
+}
+
+/* Nội dung giữ nguyên bề rộng để chữ không bị bóp khi bảng co lại */
+@media (min-width: 1101px) {
+    .ov .detail>* {
+        min-width: 420px
+    }
+}
+
+/* Nút "Chi tiết": hiện sau khi bảng đã đóng */
+.ov .detail-tab {
+    display: inline-flex;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(14px);
+    transition: opacity .3s ease, transform .45s var(--ease), visibility 0s .3s, background .18s
+}
+
+.ov .stage[data-panel="hidden"] .detail-tab {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition: opacity .35s ease .3s, transform .45s var(--ease) .3s, visibility 0s, background .18s
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ov *,
+    .ov *::before,
+    .ov *::after {
+        animation: none !important;
+        transition: none !important
+    }
+}
+
+@keyframes ov-breathe {
+    50% {
+        box-shadow: 0 0 70px rgba(186, 20, 26, .55), 0 0 0 1px rgba(255, 180, 171, .18)
+    }
+}
+
+@keyframes ov-pop {
+    from {
+        opacity: 0;
+        scale: .6
+    }
+}
+
+@keyframes ov-float {
+    50% {
+        translate: 0 -4px
+    }
+}
+
+@keyframes ov-orbit {
+    from {
+        transform: rotate(0) translateY(-43.3cqw)
+    }
+
+    to {
+        transform: rotate(360deg) translateY(-43.3cqw)
+    }
+}
+
+@keyframes ov-sweep {
+    from {
+        transform: translateX(-100%)
+    }
+
+    to {
+        transform: translateX(100%)
+    }
+}
+
+@keyframes ov-grid {
+    to {
+        background-position: 40px 40px, 40px 40px
+    }
+}
