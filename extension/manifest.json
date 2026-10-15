@@ -4,6 +4,12 @@
   "version": "0.9",
   "description": "Gửi thời khóa biểu, chương trình đào tạo, học bổng tới HUSTBot (chỉ chạy khi bạn bấm; không gửi cookie/token lên HUSTBot).",
   "permissions": ["activeTab", "scripting", "storage"],
+  "icons": {
+    "16": "icons/icon2.png",
+    "32": "icons/icon2.png",
+    "48": "icons/icon2.png",
+    "128": "icons/icon2.png"
+  },
   "host_permissions": [
     "http://localhost:5000/*",
     "https://student.hust.edu.vn/*",

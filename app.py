@@ -82,11 +82,15 @@ def get_events(sid):
     reg = {r.event_id for r in EventRegistration.query.filter_by(student_id=sid)}
     return [dict(e.to_dict(), registered=e.id in reg) for e in Event.query.order_by(Event.date)]
 
-
+def get_program(sid):
+    """program.summary() chỉ tính một lần cho mỗi request."""
+    if "_prog" not in g:
+        g._prog = program.summary(sid)
+    return g._prog
 def get_user(sid):
     s = db.session.get(Student, sid)
     drl = sum(c["now"] for c in get_criteria(sid))
-    ps = program.summary(sid)
+    ps = get_program(sid)
     cpa = ps["cpa_est"] if ps and ps["cpa_est"] is not None else (s.cpa or 0)
     return dict(name=s.name, mssv=s.mssv, cls=s.cls, cpa="%.2f" % cpa, drl=drl)
 
@@ -189,6 +193,7 @@ def week_workload(sid, tasks, now):
 @app.route("/")
 def overview():
     sid, now = g.student.id, datetime.now()
+    program.save_cpa(sid, get_program(sid))     # tự chữa nếu DB lệch (chỉ ghi khi đổi)
     tasks = get_tasks(sid)                                   # chưa xong, sắp theo hạn
     timeline = build_timeline(get_schedule(sid, weekday_vn(now)), now)
     conduct = conduct_overview(sid)
@@ -224,7 +229,7 @@ def overview():
     return render_template(
         "overview.html", tasks=tasks[:3], all_count=len(tasks), timeline=timeline, stats=stats,
         conduct=conduct, wl=week_workload(sid, tasks, now),
-        prog=program.summary(sid),                                  # <- thêm dòng này
+        prog=get_program(sid),                                # <- thêm dòng này
         awards_list=awards.award_dicts(sid)[:3], awards_synced=awards.last_sync(sid),
         events_today=[e for e in conduct["history"] if e["date"] == now.strftime("%d/%m/%Y")], now=now)
 

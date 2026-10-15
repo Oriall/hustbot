@@ -10,6 +10,8 @@ COLS = {"code": "Mã HP", "name": "Tên HP", "term": "Kỳ học", "required": "
         "tc_done": "TC học", "code_taken": "Mã HP học", "note": "Ghi chú loại HP", "letter": "Điểm chữ",
         "score": "Điểm số", "dept": "Viện/Khoa"}
 PASS = {"A+", "A", "B+", "B", "C+", "C", "D+", "D"}
+GRADE_POINT = {"A+": 4.0, "A": 4.0, "B+": 3.5, "B": 3.0, "C+": 2.5, "C": 2.0, "D+": 1.5, "D": 1.0, "F": 0.0}
+CPA_EXCLUDE_PREFIXES = ("PE", "MIL")     # GDTC, GDQP-AN: không tính vào CPA. Kiểm tra lại mã môn thật của bạn
 MAX_ROWS = 600
 
 
@@ -76,14 +78,33 @@ def parse_program(data):
 
 def is_passed(c):
     return (c.get("letter") or "") in PASS
+def _grade_point(c):
+    """Điểm hệ 4 của học phần; None nếu chưa có điểm."""
+    s = c.get("score")
+    if s is not None and 0 <= s <= 4:
+        return s
+    return GRADE_POINT.get((c.get("letter") or "").upper())     # score ngoài thang 4 -> quy đổi từ điểm chữ
 
+
+def cpa_inputs(courses):
+    """[(tín chỉ, điểm hệ 4)] của các học phần được tính vào CPA.
+    Bỏ môn chưa có điểm, môn loại trừ (PE/MIL), mỗi môn chỉ tính một lần (giữ điểm cao nhất)."""
+    best = {}
+    for c in courses:
+        credits, gp = c.get("tc_done") or 0, _grade_point(c)
+        codes = [(c.get("code") or "").upper(), (c.get("code_taken") or "").upper()]
+        if gp is None or credits <= 0 or any(x.startswith(CPA_EXCLUDE_PREFIXES) for x in codes if x):
+            continue
+        key = codes[1] or codes[0]
+        if key not in best or gp > best[key][1]:
+            best[key] = (credits, gp)
+    return list(best.values())
 
 def summarize(courses):
-    """Tổng hợp từ danh sách học phần (dict). CPA là ƯỚC TÍNH: Σ(TC học × điểm số) / Σ TC học của các môn đã có điểm."""
     passed = [c for c in courses if is_passed(c)]
-    graded = [c for c in courses if c.get("score") is not None and (c.get("tc_done") or 0) > 0]
-    points = sum(c["tc_done"] * c["score"] for c in graded)
-    credits = sum(c["tc_done"] for c in graded)
+    counted = cpa_inputs(courses)
+    points = sum(cr * gp for cr, gp in counted)
+    credits = sum(cr for cr, _ in counted)
     req = [c for c in courses if c["required"] and c["tc_prog"] > 0]
     req_left = [c for c in req if not is_passed(c)]
     return dict(

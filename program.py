@@ -8,7 +8,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 
 from connect import PairToken, _hash          # dùng lại mã ghép nối 10 phút của extension
-from models import _owner, db
+from models import Student, _owner, db
 from program_clean import is_passed, parse_program, summarize
 
 bp = Blueprint("program", __name__)
@@ -72,7 +72,29 @@ def course_list(sid, status="remaining", only_required=True, limit=40):
 
 def last_sync(sid):
     return db.session.query(db.func.max(ProgramCourse.synced_at)).filter(ProgramCourse.student_id == sid).scalar()
+def _round_cpa(v):
+    return None if v is None else round(float(v), 2)
 
+
+def apply_cpa(sid, cpa_est):
+    """Gán Student.cpa (CHƯA commit). Trả True nếu giá trị đổi.
+    cpa_est = None (chưa có điểm) thì giữ nguyên CPA cũ, không reset về 0."""
+    new = _round_cpa(cpa_est)
+    if new is None:
+        return False
+    st = db.session.get(Student, sid)
+    if st is None or (st.cpa is not None and round(st.cpa, 2) == new):
+        return False
+    st.cpa = new
+    return True
+
+
+def save_cpa(sid, s=None):
+    """Đồng bộ Student.cpa theo program_course (có commit, chỉ ghi khi đổi). Dùng để tự chữa khi DB đang lệch."""
+    s = s if s is not None else summary(sid)
+    if s and apply_cpa(sid, s.get("cpa_est")):
+        db.session.commit()
+    return _round_cpa(s.get("cpa_est")) if s else None
 
 # ------------------------------------------------------------------ API cho extension
 # Nhớ thêm "program.ext_program" vào PUBLIC_ENDPOINTS (extension tự xác thực bằng mã ghép nối)
@@ -93,10 +115,10 @@ def ext_program():
     ProgramCourse.query.filter_by(student_id=sid).delete()        # bản mới thay bản cũ
     for c in courses:
         db.session.add(ProgramCourse(student_id=sid, synced_at=now, **c))
-    db.session.commit()
     s = summarize(courses)
+    apply_cpa(sid, s["cpa_est"])                                  # cùng transaction với điểm
+    db.session.commit()
     return jsonify(ok=True, synced=len(courses), earned=s["earned"], cpa_est=s["cpa_est"])
-
 
 # ------------------------------------------------------------------ xóa dữ liệu (cần đăng nhập; gọi từ nút "Xóa dữ liệu điểm" nếu bạn thêm vào giao diện)
 @bp.delete("/api/program")

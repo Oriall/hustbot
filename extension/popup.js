@@ -1,5 +1,15 @@
 const $ = (id) => document.getElementById(id);
-const say = (t) => ($("msg").textContent = t);
+
+// Hiện thông báo; đổi màu ô #msg theo kết quả (ok / busy / warn / err)
+const say = (t) => {
+  const m = $("msg");
+  m.textContent = t;
+  m.className = /^Đã cập nhật/.test(t) ? "ok"
+    : /^Đang/.test(t) ? "busy"
+    : /^(Hãy|Nhập|Chưa)/.test(t) ? "warn" : "err";
+  if (/userIds/.test(t)) $("adv").open = true;      // lỗi liên quan userIds thì tự mở mục Nâng cao
+};
+
 const store = chrome.storage.local;
 const session = chrome.storage.session || chrome.storage.local;   // mã ghép nối chỉ giữ tới khi đóng trình duyệt
 
@@ -9,6 +19,12 @@ store.get(["server", "uid"], (v) => {
 });
 session.get(["token"], (v) => { if (v.token) $("token").value = v.token; });
 $("token").addEventListener("input", () => session.set({ token: $("token").value.trim() }));
+
+// Hiện / ẩn mã ghép nối
+$("tokToggle").onclick = () => {
+  const t = $("token");
+  t.type = t.type === "password" ? "text" : "password";
+};
 
 // ----------------------------------------------------------------- tiện ích dùng chung
 function creds() {
@@ -40,9 +56,11 @@ async function post(c, path, body) {
   return { ok: r.ok && d.ok === true, status: r.status, d };
 }
 
-// bắt mọi lỗi để popup luôn hiện thông báo thay vì im lặng
+// bắt mọi lỗi để popup luôn hiện thông báo thay vì im lặng; khóa các nút trong lúc đang chạy
 const run = (fn) => async () => {
+  document.body.classList.add("busy");
   try { await fn(); } catch (e) { say("Lỗi: " + ((e && e.message) || e)); }
+  finally { document.body.classList.remove("busy"); }
 };
 
 // ----------------------------------------------------------------- THỜI KHÓA BIỂU (qldt.hust.edu.vn)
